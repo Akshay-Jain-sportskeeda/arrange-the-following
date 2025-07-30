@@ -493,21 +493,23 @@ export default function CricketGame() {
 
           {/* Play Again Button */}
           <div className="text-center">
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <button
-                onClick={resetGame}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Play Again
-              </button>
-              <button
-                onClick={handleShare}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </button>
+            <div className="flex flex-col gap-3 justify-center items-center">
+              <div className="flex gap-3 justify-center items-center">
+                <button
+                  onClick={resetGame}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Play Again
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
+              </div>
               <button
                 onClick={() => setShowGameSelector(true)}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
@@ -515,6 +517,7 @@ export default function CricketGame() {
                 <Calendar className="w-4 h-4" />
                 Play Previous Games
               </button>
+            </div>
             </div>
           </div>
 
