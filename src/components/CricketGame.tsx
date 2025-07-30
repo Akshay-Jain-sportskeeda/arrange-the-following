@@ -522,12 +522,12 @@ export default function CricketGame() {
                 href="https://www.sportskeeda.com/cricket/quiz"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
+                className="text-white rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
                   src="https://staticg.sportskeeda.com/cmc/mini-games/cricket-daily-trivia.png?w=200" 
                   alt="Cricket Quiz" 
-                  className="w-16 h-16 rounded-lg object-cover group-hover:scale-105 transition-transform"
+                  className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
                 />
               </a>
               
@@ -535,12 +535,12 @@ export default function CricketGame() {
                 href="https://staticg.sportskeeda.com/games/cricket/guess_the_stats/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
+                className="text-white rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
                   src="https://staticg.sportskeeda.com/cmc/mini-games/guess-the-stats-game.png?w=200" 
                   alt="Guess Stats" 
-                  className="w-16 h-16 rounded-lg object-cover group-hover:scale-105 transition-transform"
+                  className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
                 />
               </a>
               
@@ -548,12 +548,12 @@ export default function CricketGame() {
                 href="https://staticg.sportskeeda.com/games/cricket/hi_low_stats_game/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
+                className="text-white rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
                   src="https://staticg.sportskeeda.com/cmc/mini-games/high-or-low-stats-game.png?w=200" 
                   alt="Hi-Low Stats" 
-                  className="w-16 h-16 rounded-lg object-cover group-hover:scale-105 transition-transform"
+                  className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
                 />
               </a>
             </div>
