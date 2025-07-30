@@ -522,7 +522,7 @@ export default function CricketGame() {
                 href="https://www.sportskeeda.com/cricket/quiz"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
+                className="text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
                   src="https://staticg.sportskeeda.com/cmc/mini-games/cricket-daily-trivia.png?w=200" 
@@ -535,7 +535,7 @@ export default function CricketGame() {
                 href="https://staticg.sportskeeda.com/games/cricket/guess_the_stats/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
+                className="text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
                   src="https://staticg.sportskeeda.com/cmc/mini-games/guess-the-stats-game.png?w=200" 
@@ -548,7 +548,7 @@ export default function CricketGame() {
                 href="https://staticg.sportskeeda.com/games/cricket/hi_low_stats_game/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
+                className="text-white p-3 rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
                   src="https://staticg.sportskeeda.com/cmc/mini-games/high-or-low-stats-game.png?w=200" 
