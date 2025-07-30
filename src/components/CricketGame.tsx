@@ -633,7 +633,10 @@ export default function CricketGame() {
                   Game Over!
                 </h2>
                 <p className="text-red-300 text-xs">
-                  You've used all 5 attempts. Check the results!
+                  {gaveUp 
+                    ? "You gave up! Check the results to see the correct answer."
+                    : "You've used all 5 attempts. Check the results!"
+                  }
                 </p>
               </div>
             )}
