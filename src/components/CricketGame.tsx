@@ -439,9 +439,9 @@ export default function CricketGame() {
     
     return (
       <>
-        <div className="min-h-screen bg-gray-900 p-3 max-w-4xl mx-auto">
+        <div className="min-h-screen bg-gray-900 p-2 max-w-4xl mx-auto">
           {/* Results Header */}
-          <div className="text-center mb-4">
+          <div className="text-center mb-2">
             <div className="mb-3">
               {gameWon ? (
                 <Trophy className="w-10 h-10 text-yellow-400 mx-auto mb-3" />
@@ -463,7 +463,7 @@ export default function CricketGame() {
           </div>
 
           {/* Game Stats */}
-          <div className="bg-gray-800 rounded-lg p-3 mb-4">
+          <div className="bg-gray-800 rounded-lg p-3 mb-2">
             <h2 className="text-base font-bold text-white mb-3">Game Statistics</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div className="text-center p-2 bg-blue-900/30 rounded-lg border border-blue-400/30">
@@ -492,7 +492,7 @@ export default function CricketGame() {
           </div>
 
           {/* Play Again Button */}
-          <div className="text-center">
+          <div className="text-center mb-2">
             <div className="flex flex-col gap-3 justify-center items-center">
               <div className="flex gap-3 justify-center items-center">
                 <button
@@ -522,7 +522,7 @@ export default function CricketGame() {
           </div>
 
           {/* Other Games Section */}
-          <div className="mt-6 bg-gray-800 rounded-lg p-4">
+          <div className="bg-gray-800 rounded-lg p-3 mb-2">
             <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
               <Gamepad2 className="w-4 h-4 text-purple-400" />
               More Cricket Games
@@ -570,7 +570,7 @@ export default function CricketGame() {
           </div>
 
           {/* Correct Order Display */}
-          <div className="bg-gray-800 rounded-lg p-3 mb-4 mt-6">
+          <div className="bg-gray-800 rounded-lg p-3">
             <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
               <Trophy className="w-4 h-4 text-green-400" />
               Correct Order - {gameData.question}
