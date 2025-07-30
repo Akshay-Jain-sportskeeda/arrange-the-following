@@ -606,6 +606,7 @@ export default function CricketGame() {
             </div>
           </div>
 
+        </div>
 
         {/* Game Selector Popup - moved outside conditional rendering */}
         {showGameSelector && (
@@ -724,8 +725,6 @@ export default function CricketGame() {
               </div>
             ))}
           </div>
-        </div>
-
         </div>
 
         {/* Arrangement Area */}
@@ -860,7 +859,6 @@ export default function CricketGame() {
           </div>
         </div>
       )}
-    </div>
     </div>
     </>
   );
