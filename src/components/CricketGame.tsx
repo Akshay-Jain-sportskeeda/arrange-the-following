@@ -439,9 +439,9 @@ export default function CricketGame() {
     
     return (
       <>
-        <div className="min-h-screen bg-gray-900">
+        <div className="min-h-screen bg-gray-900 max-w-4xl mx-auto">
           {/* Results Header */}
-          <div className="text-center p-4 max-w-4xl mx-auto">
+          <div className="text-center p-4">
             <div className="mb-3">
               {gameWon ? (
                 <Trophy className="w-10 h-10 text-yellow-400 mx-auto mb-3" />
@@ -463,7 +463,7 @@ export default function CricketGame() {
           </div>
 
           {/* Game Stats */}
-          <div className="p-4 max-w-4xl mx-auto">
+          <div className="p-4">
             <h2 className="text-base font-bold text-white mb-3">Game Statistics</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div className="text-center p-2 bg-blue-900/30 rounded-lg border border-blue-400/30">
@@ -492,7 +492,7 @@ export default function CricketGame() {
           </div>
 
           {/* Play Again Button */}
-          <div className="text-center p-4 max-w-4xl mx-auto">
+          <div className="text-center p-4">
             <div className="flex flex-col gap-3 justify-center items-center">
               <div className="flex gap-3 justify-center items-center">
                 <button
@@ -521,89 +521,85 @@ export default function CricketGame() {
           </div>
 
           {/* Other Games Section */}
-          <div className="bg-gray-800 w-full">
-            <div className="p-4 max-w-4xl mx-auto">
-              <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-                <Gamepad2 className="w-4 h-4 text-purple-400" />
-                More Cricket Games
-              </h2>
-              <div className="flex gap-3 justify-center">
-                <a
-                  href="https://www.sportskeeda.com/cricket/quiz"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white rounded-lg transition-all duration-200 group shadow-lg"
-                >
-                  <img 
-                    src="https://staticg.sportskeeda.com/cmc/mini-games/cricket-daily-trivia.png?w=200" 
-                    alt="Cricket Quiz" 
-                    className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
-                  />
-                </a>
-                
-                <a
-                  href="https://staticg.sportskeeda.com/games/cricket/guess_the_stats/index.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white rounded-lg transition-all duration-200 group shadow-lg"
-                >
-                  <img 
-                    src="https://staticg.sportskeeda.com/cmc/mini-games/guess-the-stats-game.png?w=200" 
-                    alt="Guess Stats" 
-                    className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
-                  />
-                </a>
-                
-                <a
-                  href="https://staticg.sportskeeda.com/games/cricket/hi_low_stats_game/index.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white rounded-lg transition-all duration-200 group shadow-lg"
-                >
-                  <img 
-                    src="https://staticg.sportskeeda.com/cmc/mini-games/high-or-low-stats-game.png?w=200" 
-                    alt="Hi-Low Stats" 
-                    className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
-                  />
-                </a>
-              </div>
+          <div className="p-4 bg-gray-800">
+            <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
+              <Gamepad2 className="w-4 h-4 text-purple-400" />
+              More Cricket Games
+            </h2>
+            <div className="flex gap-3 justify-center">
+              <a
+                href="https://www.sportskeeda.com/cricket/quiz"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white rounded-lg transition-all duration-200 group shadow-lg"
+              >
+                <img 
+                  src="https://staticg.sportskeeda.com/cmc/mini-games/cricket-daily-trivia.png?w=200" 
+                  alt="Cricket Quiz" 
+                  className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
+                />
+              </a>
+              
+              <a
+                href="https://staticg.sportskeeda.com/games/cricket/guess_the_stats/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white rounded-lg transition-all duration-200 group shadow-lg"
+              >
+                <img 
+                  src="https://staticg.sportskeeda.com/cmc/mini-games/guess-the-stats-game.png?w=200" 
+                  alt="Guess Stats" 
+                  className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
+                />
+              </a>
+              
+              <a
+                href="https://staticg.sportskeeda.com/games/cricket/hi_low_stats_game/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white rounded-lg transition-all duration-200 group shadow-lg"
+              >
+                <img 
+                  src="https://staticg.sportskeeda.com/cmc/mini-games/high-or-low-stats-game.png?w=200" 
+                  alt="Hi-Low Stats" 
+                  className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
+                />
+              </a>
             </div>
           </div>
 
           {/* Correct Order Display */}
-          <div className="bg-gray-800 w-full">
-            <div className="p-4 max-w-4xl mx-auto">
-              <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-green-400" />
-                Correct Order - {gameData.question}
-              </h2>
-              
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-                {correctOrder.map((player, index) => (
-                  <div key={player.id} className="bg-green-900/30 rounded-lg p-2 border border-green-400/30">
-                    <div className="relative">
-                      <div className="absolute top-0 left-0 w-5 h-5 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-xs">
-                        {index + 1}
-                      </div>
-                      <div className="text-center pt-1">
-                        <img
-                          src={player.image}
-                          alt={player.name}
-                          className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
-                          }}
-                        />
-                        <h3 className="font-semibold text-white text-xs mb-1 leading-tight">{player.name}</h3>
-                        <p className="text-xs text-gray-300 bg-gray-700 rounded px-2 py-0.5">
-                          {player.stats}
-                        </p>
-                      </div>
+          <div className="p-4 bg-gray-800">
+            <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-green-400" />
+              Correct Order - {gameData.question}
+            </h2>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {correctOrder.map((player, index) => (
+                <div key={player.id} className="bg-green-900/30 rounded-lg p-2 border border-green-400/30">
+                  <div className="relative">
+                    <div className="absolute top-0 left-0 w-5 h-5 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-xs">
+                      {index + 1}
+                    </div>
+                    <div className="text-center pt-1">
+                      <img
+                        src={player.image}
+                        alt={player.name}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
+                        }}
+                      />
+                      <h3 className="font-semibold text-white text-xs mb-1 leading-tight">{player.name}</h3>
+                      <p className="text-xs text-gray-300 bg-gray-700 rounded px-2 py-0.5">
+                        {player.stats}
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
 
