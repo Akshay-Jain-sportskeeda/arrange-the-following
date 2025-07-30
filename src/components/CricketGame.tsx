@@ -438,6 +438,7 @@ export default function CricketGame() {
     const correctOrder = [...gameData.players].sort((a, b) => a.correctPosition - b.correctPosition);
     
     return (
+      <>
       <div className="min-h-screen bg-gray-900 p-3">
         <div className="max-w-4xl mx-auto">
           {/* Results Header */}
@@ -645,10 +646,12 @@ export default function CricketGame() {
           </div>
         )}
       </div>
+      </>
     );
   }
 
   return (
+    <>
     <div className="min-h-screen bg-gray-900 p-2">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -826,6 +829,7 @@ export default function CricketGame() {
                 Select Game Date
               </h2>
               <button
+                onClick={() => setShowGameSelector(false)}
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -855,5 +859,6 @@ export default function CricketGame() {
         </div>
       )}
     </div>
+    </>
   );
 }
