@@ -778,10 +778,6 @@ export default function CricketGame() {
                 Select Game Date
               </h2>
               <button
-                {gaveUp 
-                  ? "You gave up! Check the results to see the correct answer."
-                  : "You've used all 5 attempts. Check the results!"
-                }
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
