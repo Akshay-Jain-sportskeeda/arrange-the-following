@@ -606,7 +606,6 @@ export default function CricketGame() {
             </div>
           </div>
 
-        </div>
 
         {/* Game Selector Popup - moved outside conditional rendering */}
         {showGameSelector && (
