@@ -527,7 +527,7 @@ export default function CricketGame() {
           </div>
 
           {/* Correct Order Display */}
-          <div className="bg-gray-800 rounded-lg p-3 mb-4">
+          <div className="bg-gray-800 rounded-lg p-3 mb-4 mt-6">
             <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
               <Trophy className="w-4 h-4 text-green-400" />
               Correct Order - {gameData.question}
