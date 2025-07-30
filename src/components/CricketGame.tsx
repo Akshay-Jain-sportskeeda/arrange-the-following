@@ -726,6 +726,8 @@ export default function CricketGame() {
           </div>
         </div>
 
+        </div>
+
         {/* Arrangement Area */}
         <div className="bg-gray-800 rounded-lg p-3 mb-3">
           <div className="flex justify-between items-center mb-2">
