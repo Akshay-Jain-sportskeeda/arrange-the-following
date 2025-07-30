@@ -439,8 +439,7 @@ export default function CricketGame() {
     
     return (
       <>
-      <div className="min-h-screen bg-gray-900 p-3">
-        <div className="max-w-4xl mx-auto">
+        <div className="min-h-screen bg-gray-900 p-3 max-w-4xl mx-auto">
           {/* Results Header */}
           <div className="text-center mb-4">
             <div className="mb-3">
@@ -645,7 +644,6 @@ export default function CricketGame() {
             </div>
           </div>
         )}
-      </div>
       </>
     );
   }
