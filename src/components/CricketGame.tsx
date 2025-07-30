@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Trophy, AlertCircle, Send, Calendar, ExternalLink, X, Gamepad2, Flag } from 'lucide-react';
+import { RotateCcw, Trophy, AlertCircle, Send, Calendar, ExternalLink, X, Gamepad2, Flag, Share2 } from 'lucide-react';
 
 interface Player {
   id: number;
@@ -364,6 +364,39 @@ export default function CricketGame() {
     setGaveUp(false);
   };
 
+  const handleShare = async () => {
+    const shareText = gameWon 
+      ? `🏏 I just completed the Cricket Arrange Game in ${attempts} attempts! Can you beat my score? 🎯`
+      : `🏏 Just played the Cricket Arrange Game! Think you can do better? Give it a try! 🎯`;
+    
+    const shareUrl = window.location.href;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Cricket Arrange Game',
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        // Fallback to clipboard
+        fallbackShare(shareText, shareUrl);
+      }
+    } else {
+      fallbackShare(shareText, shareUrl);
+    }
+  };
+
+  const fallbackShare = (text: string, url: string) => {
+    const fullText = `${text}\n\n${url}`;
+    navigator.clipboard.writeText(fullText).then(() => {
+      // You could add a toast notification here
+      alert('Link copied to clipboard!');
+    }).catch(() => {
+      // Final fallback - open share dialog or just show the text
+      alert(`Share this: ${fullText}`);
+    });
+  };
   const getPositionBorderColor = (index: number) => {
     const color = positionColors[index];
     if (color === 'green') return 'border-green-400 bg-green-900/20';
@@ -467,6 +500,13 @@ export default function CricketGame() {
               >
                 <RotateCcw className="w-4 h-4" />
                 Play Again
+              </button>
+              <button
+                onClick={handleShare}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+              >
+                <Share2 className="w-4 h-4" />
+                Share
               </button>
               <button
                 onClick={() => setShowGameSelector(true)}
