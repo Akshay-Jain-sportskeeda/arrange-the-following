@@ -859,6 +859,7 @@ export default function CricketGame() {
         </div>
       )}
     </div>
+    </div>
     </>
   );
 }
