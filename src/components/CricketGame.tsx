@@ -675,12 +675,10 @@ export default function CricketGame() {
             <h2 className="text-sm font-bold text-white">
               Your Answer
             </h2>
-            <div className="bg-gray-700 rounded-lg px-2 py-1">
-              <div className="flex items-center gap-1">
-                <AlertCircle className="w-3 h-3 text-orange-400" />
-                <span className="text-xs font-medium text-gray-300">Attempts:</span>
-                <span className="text-sm font-bold text-orange-400">{attempts}/5</span>
-              </div>
+            <div className="flex items-center gap-1">
+              <AlertCircle className="w-3 h-3 text-orange-400" />
+              <span className="text-xs font-medium text-gray-300">Attempts:</span>
+              <span className="text-sm font-bold text-orange-400">{attempts}/5</span>
             </div>
           </div>
           
