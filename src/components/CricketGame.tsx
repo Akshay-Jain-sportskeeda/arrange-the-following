@@ -535,6 +535,46 @@ export default function CricketGame() {
             </div>
           </div>
         </div>
+
+        {/* Game Selector Popup - moved outside conditional rendering */}
+        {showGameSelector && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-blue-400" />
+                  Select Game Date
+                </h2>
+                <button
+                  onClick={() => setShowGameSelector(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-2">
+                {availableDates.map((gameDate, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDateSelect(gameDate.date)}
+                    className="w-full text-left p-3 rounded-lg border border-gray-600 hover:border-gray-500 hover:bg-gray-700/50 text-white transition-all duration-200"
+                  >
+                    <div className="font-semibold text-sm">{gameDate.date}</div>
+                    <div className="text-xs text-gray-300 mt-1">{gameDate.question}</div>
+                  </button>
+                ))}
+              </div>
+              
+              {availableDates.length === 0 && (
+                <div className="text-center text-gray-400 py-8">
+                  <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No previous games available</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -689,7 +729,7 @@ export default function CricketGame() {
         </div>
       </div>
 
-      {/* Game Selector Popup */}
+      {/* Game Selector Popup - moved outside conditional rendering */}
       {showGameSelector && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
