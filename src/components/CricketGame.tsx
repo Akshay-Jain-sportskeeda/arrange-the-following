@@ -536,23 +536,25 @@ export default function CricketGame() {
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
               {correctOrder.map((player, index) => (
                 <div key={player.id} className="bg-green-900/30 rounded-lg p-2 border border-green-400/30">
-                  <div className="text-center">
-                    <div className="w-5 h-5 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-xs mx-auto mb-2">
+                  <div className="relative">
+                    <div className="absolute top-0 left-0 w-5 h-5 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-xs">
                       {index + 1}
                     </div>
-                    <img
-                      src={player.image}
-                      alt={player.name}
-                      className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-2"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
-                      }}
-                    />
-                    <h3 className="font-semibold text-white text-xs mb-1 leading-tight">{player.name}</h3>
-                    <p className="text-xs text-gray-300 bg-gray-700 rounded px-2 py-0.5">
-                      {player.stats}
-                    </p>
+                    <div className="text-center pt-1">
+                      <img
+                        src={player.image}
+                        alt={player.name}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
+                        }}
+                      />
+                      <h3 className="font-semibold text-white text-xs mb-1 leading-tight">{player.name}</h3>
+                      <p className="text-xs text-gray-300 bg-gray-700 rounded px-2 py-0.5">
+                        {player.stats}
+                      </p>
+                    </div>
                   </div>
                 </div>
               ))}
