@@ -38,6 +38,7 @@ export default function CricketGame() {
   const [showGameSelector, setShowGameSelector] = useState<boolean>(false);
   const [availableDates, setAvailableDates] = useState<GameDate[]>([]);
   const [currentDate, setCurrentDate] = useState<string>(new Date().toLocaleDateString('en-US'));
+  const [gaveUp, setGaveUp] = useState<boolean>(false);
 
   const handleGiveUp = () => {
     if (!gameData || gameComplete) return;
@@ -54,6 +55,7 @@ export default function CricketGame() {
     setAttempts(5); // Set to max attempts
     setGameComplete(true);
     setGameWon(false);
+    setGaveUp(true);
     
     setTimeout(() => setShowResults(true), 2000);
   };
@@ -256,6 +258,7 @@ export default function CricketGame() {
     setArrangedPlayers([]);
     setPositionColors([]);
     setCanSubmit(false);
+    setGaveUp(false);
     // Fetch new data
     fetchGameData(selectedDate);
   };
@@ -358,6 +361,7 @@ export default function CricketGame() {
     setArrangedPlayers(new Array(gameData.players.length).fill(null));
     setPositionColors(new Array(gameData.players.length).fill(''));
     setCanSubmit(false);
+    setGaveUp(false);
   };
 
   const getPositionBorderColor = (index: number) => {
@@ -418,7 +422,9 @@ export default function CricketGame() {
             <p className="text-sm text-gray-300 mb-3">
               {gameWon 
                 ? `You completed the challenge in ${attempts} attempts!`
-                : `You used all 5 attempts. Better luck next time!`
+                : gaveUp 
+                  ? `You gave up! Don't worry, it happens to the best of us.`
+                  : `You used all 5 attempts. Better luck next time!`
               }
             </p>
           </div>
