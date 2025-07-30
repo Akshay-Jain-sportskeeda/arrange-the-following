@@ -518,6 +518,7 @@ export default function CricketGame() {
                 Play Previous Games
               </button>
             </div>
+          </div>
 
           {/* Other Games Section */}
           <div className="p-4">
@@ -642,6 +643,7 @@ export default function CricketGame() {
               )}
             </div>
           </div>
+        )}
       </>
     );
   }
