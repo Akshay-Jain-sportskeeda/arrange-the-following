@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Trophy, AlertCircle, Send, Calendar, ExternalLink, X, Gamepad2 } from 'lucide-react';
+import { RotateCcw, Trophy, AlertCircle, Send, Calendar, ExternalLink, X, Gamepad2, Flag } from 'lucide-react';
 
 interface Player {
   id: number;
@@ -39,6 +39,24 @@ export default function CricketGame() {
   const [availableDates, setAvailableDates] = useState<GameDate[]>([]);
   const [currentDate, setCurrentDate] = useState<string>(new Date().toLocaleDateString('en-US'));
 
+  const handleGiveUp = () => {
+    if (!gameData || gameComplete) return;
+    
+    // Set all positions to correct answers
+    const correctOrder = [...gameData.players].sort((a, b) => a.correctPosition - b.correctPosition);
+    setArrangedPlayers(correctOrder);
+    setAvailablePlayers([]);
+    
+    // Mark all as correct (green)
+    setPositionColors(new Array(correctOrder.length).fill('green'));
+    
+    // End the game as a loss
+    setAttempts(5); // Set to max attempts
+    setGameComplete(true);
+    setGameWon(false);
+    
+    setTimeout(() => setShowResults(true), 2000);
+  };
   useEffect(() => {
     fetchGameData();
   }, []);
@@ -710,20 +728,37 @@ export default function CricketGame() {
             
             {/* Submit Button next to 5th tile */}
             <div className="flex items-center justify-center">
-              <button
-                onClick={handleSubmit}
-                disabled={!canSubmit || gameComplete}
-                className={`
-                  px-2 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
-                  ${canSubmit && !gameComplete
-                    ? 'bg-green-600 hover:bg-green-700 text-white transform hover:scale-105'
-                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                  }
-                `}
-              >
-                <Send className="w-3 h-3" />
-                Submit
-              </button>
+              <div className="flex flex-col gap-1">
+                <button
+                  onClick={handleSubmit}
+                  disabled={!canSubmit || gameComplete}
+                  className={`
+                    px-2 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
+                    ${canSubmit && !gameComplete
+                      ? 'bg-green-600 hover:bg-green-700 text-white transform hover:scale-105'
+                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    }
+                  `}
+                >
+                  <Send className="w-3 h-3" />
+                  Submit
+                </button>
+                
+                <button
+                  onClick={handleGiveUp}
+                  disabled={gameComplete}
+                  className={`
+                    px-2 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
+                    ${!gameComplete
+                      ? 'bg-red-600 hover:bg-red-700 text-white transform hover:scale-105'
+                      : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                    }
+                  `}
+                >
+                  <Flag className="w-3 h-3" />
+                  Give Up
+                </button>
+              </div>
             </div>
           </div>
         </div>
