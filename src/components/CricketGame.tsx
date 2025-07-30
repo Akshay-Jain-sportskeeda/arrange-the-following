@@ -478,39 +478,6 @@ export default function CricketGame() {
             </div>
           </div>
 
-          {/* Correct Order Display */}
-          <div className="bg-gray-800 rounded-lg p-3 mb-4">
-            <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-green-400" />
-              Correct Order - {gameData.question}
-            </h2>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-              {correctOrder.map((player, index) => (
-                <div key={player.id} className="bg-green-900/30 rounded-lg p-2 border border-green-400/30">
-                  <div className="text-center">
-                    <div className="w-5 h-5 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-xs mx-auto mb-2">
-                      {index + 1}
-                    </div>
-                    <img
-                      src={player.image}
-                      alt={player.name}
-                      className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-2"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
-                      }}
-                    />
-                    <h3 className="font-semibold text-white text-xs mb-1 leading-tight">{player.name}</h3>
-                    <p className="text-xs text-gray-300 bg-gray-700 rounded px-2 py-0.5">
-                      {player.stats}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Other Games Section */}
           <div className="mt-6 bg-gray-800 rounded-lg p-4">
             <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
@@ -556,6 +523,39 @@ export default function CricketGame() {
                   className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
                 />
               </a>
+            </div>
+          </div>
+
+          {/* Correct Order Display */}
+          <div className="bg-gray-800 rounded-lg p-3 mb-4">
+            <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-green-400" />
+              Correct Order - {gameData.question}
+            </h2>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {correctOrder.map((player, index) => (
+                <div key={player.id} className="bg-green-900/30 rounded-lg p-2 border border-green-400/30">
+                  <div className="text-center">
+                    <div className="w-5 h-5 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-xs mx-auto mb-2">
+                      {index + 1}
+                    </div>
+                    <img
+                      src={player.image}
+                      alt={player.name}
+                      className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-2"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
+                      }}
+                    />
+                    <h3 className="font-semibold text-white text-xs mb-1 leading-tight">{player.name}</h3>
+                    <p className="text-xs text-gray-300 bg-gray-700 rounded px-2 py-0.5">
+                      {player.stats}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
