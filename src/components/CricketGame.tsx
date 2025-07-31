@@ -785,7 +785,7 @@ export default function CricketGame() {
                         e.stopPropagation();
                         handleRemovePlayer(index);
                       }}
-                      className="absolute top-0 right-0 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-200 z-10"
+                      className="absolute top-0 right-0 w-4 h-4 bg-gray-500 hover:bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-200 z-10 leading-none"
                       disabled={gameComplete}
                     >
                       ×
