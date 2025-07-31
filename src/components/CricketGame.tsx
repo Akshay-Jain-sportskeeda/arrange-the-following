@@ -301,6 +301,22 @@ export default function CricketGame() {
     }, 300);
   };
 
+  const handleRemovePlayer = (positionIndex: number) => {
+    if (gameComplete || showResults || !arrangedPlayers[positionIndex]) return;
+
+    const playerToRemove = arrangedPlayers[positionIndex]!;
+    const newArrangedPlayers = [...arrangedPlayers];
+    newArrangedPlayers[positionIndex] = null;
+    
+    const newAvailablePlayers = [...availablePlayers, playerToRemove];
+    
+    setArrangedPlayers(newArrangedPlayers);
+    setAvailablePlayers(newAvailablePlayers);
+    setPositionColors(newArrangedPlayers.map((p, idx) => 
+      positionColors[idx] === 'green' && p ? 'green' : ''
+    ));
+  };
+
   const handleSubmit = () => {
     if (!canSubmit || !gameData) return;
 
@@ -764,6 +780,16 @@ export default function CricketGame() {
                 
                 {player ? (
                   <div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemovePlayer(index);
+                      }}
+                      className="absolute top-0 right-0 w-4 h-4 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-200 z-10"
+                      disabled={gameComplete}
+                    >
+                      ×
+                    </button>
                     <img
                       src={player.image}
                       alt={player.name}
