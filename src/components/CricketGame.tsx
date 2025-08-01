@@ -707,6 +707,43 @@ export default function CricketGame() {
           </div>
           </div>
 
+          {/* Mobile Sticky Bottom Ad - Results Page */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center sm:hidden">
+            <div id='div-gpt-ad-1754030829221-0-results' style={{minWidth: '250px', minHeight: '50px'}}>
+              <script dangerouslySetInnerHTML={{
+                __html: `
+                  if (typeof googletag !== 'undefined') {
+                    googletag.cmd.push(function() { 
+                      try {
+                        googletag.display('div-gpt-ad-1754030829221-0-results'); 
+                      } catch (e) {
+                        console.log('Ad display error:', e);
+                      }
+                    });
+                  }
+                `
+              }} />
+            </div>
+          </div>
+
+          {/* Desktop Bottom Sticky Ad - Results Page */}
+          <div className="hidden sm:block fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center">
+            <div id='div-gpt-ad-1754030936119-0-results' style={{minWidth: '970px', minHeight: '90px'}}>
+              <script dangerouslySetInnerHTML={{
+                __html: `
+                  if (typeof googletag !== 'undefined') {
+                    googletag.cmd.push(function() { 
+                      try {
+                        googletag.display('div-gpt-ad-1754030936119-0-results'); 
+                      } catch (e) {
+                        console.log('Ad display error:', e);
+                      }
+                    });
+                  }
+                `
+              }} />
+            </div>
+          </div>
         </div>
 
         {/* Game Selector Popup - moved outside conditional rendering */}
@@ -1148,12 +1185,16 @@ export default function CricketGame() {
       
       {/* Desktop Bottom Sticky Ad */}
       <div className="hidden sm:block fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center">
-        <div id='div-gpt-ad-1754030936119-0' style={{minWidth: '970px', minHeight: '90px'}}>
+        <div id='div-gpt-ad-1754030936119-0' style={{minWidth: '970px', minHeight: '90px'}} className="bg-gray-800 rounded-lg">
           <script dangerouslySetInnerHTML={{
             __html: `
               if (typeof googletag !== 'undefined') {
                 googletag.cmd.push(function() { 
-                  googletag.display('div-gpt-ad-1754030936119-0'); 
+                  try {
+                    googletag.display('div-gpt-ad-1754030936119-0'); 
+                  } catch (e) {
+                    console.log('Ad display error:', e);
+                  }
                 });
               }
             `
@@ -1204,12 +1245,16 @@ export default function CricketGame() {
 
     {/* Mobile Sticky Bottom Ad */}
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center sm:hidden">
-      <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
+      <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}} className="bg-gray-800 rounded-lg">
         <script dangerouslySetInnerHTML={{
           __html: `
             if (typeof googletag !== 'undefined') {
               googletag.cmd.push(function() { 
-                googletag.display('div-gpt-ad-1754030829221-0'); 
+                try {
+                  googletag.display('div-gpt-ad-1754030829221-0'); 
+                } catch (e) {
+                  console.log('Ad display error:', e);
+                }
               });
             }
           `
