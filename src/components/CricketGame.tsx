@@ -772,14 +772,14 @@ export default function CricketGame() {
           <div className="flex-1 text-center space-y-6">
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-white mb-4">
-                {won ? '🎉 Congratulations!' : '😔 Game Over'}
+                {gameWon ? '🎉 Congratulations!' : '😔 Game Over'}
               </h2>
               <p className="text-lg text-gray-300">
-                {won 
+                {gameWon 
                   ? `You arranged the batting order correctly in ${attempts} attempt${attempts === 1 ? '' : 's'}!`
                   : gaveUp 
                     ? "Don't worry, try again tomorrow!"
-                    : `You've used all ${MAX_ATTEMPTS} attempts. Better luck next time!`
+                    : `You've used all 5 attempts. Better luck next time!`
                 }
               </p>
               
@@ -809,7 +809,29 @@ export default function CricketGame() {
               )}
             </div>
           </div>
-        )}
+
+          {/* Desktop Right Ad */}
+          <div className="hidden sm:block flex-shrink-0">
+            <div 
+              id='div-gpt-ad-1754030700661-0-results' 
+              className="w-[300px] min-h-[250px] bg-gray-800 sticky top-4"
+            >
+              {typeof window !== 'undefined' && window.googletag && (
+                <script dangerouslySetInnerHTML={{
+                  __html: `
+                    try {
+                      googletag.cmd.push(function() { 
+                        googletag.display('div-gpt-ad-1754030700661-0-results'); 
+                      });
+                    } catch (e) {
+                      console.error('Error displaying right ad on results:', e);
+                    }
+                  `
+                }} />
+              )}
+            </div>
+          </div>
+        </div>
       </>
     );
   }
@@ -1224,90 +1246,70 @@ export default function CricketGame() {
               }
             `
           }} />
-      </div>
-            {/* Share Results */}
-            <div className="space-y-4">
-              <button
-                onClick={shareResults}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-              >
-                📱 Share Results
-              </button>
-            </div>
-            
-            <div className="space-y-2">
-              {availableDates.map((gameDate, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDateSelect(gameDate.date)}
-                >
-            {/* Mobile Sticky Ad - Results */}
-            <div className="sm:hidden">
-              <div 
-                id='div-gpt-ad-1754030829221-0-results' 
-                className="w-full min-h-[50px] bg-gray-800"
-              >
-                {typeof window !== 'undefined' && window.googletag && (
-                  <script dangerouslySetInnerHTML={{
-                    __html: `
-                      try {
-                        googletag.cmd.push(function() { 
-                          googletag.display('div-gpt-ad-1754030829221-0-results'); 
-                        });
-                      } catch (e) {
-                        console.error('Error displaying mobile ad on results:', e);
-                      }
-                    `
-                  }} />
-                )}
-              </div>
-              </div>
-            )}
-
-          {/* Desktop Right Ad */}
-          <div className="hidden sm:block flex-shrink-0">
-            <div 
-              id='div-gpt-ad-1754030700661-0-results' 
-              className="w-[300px] min-h-[250px] bg-gray-800 sticky top-4"
-            >
-              {typeof window !== 'undefined' && window.googletag && (
-                <script dangerouslySetInnerHTML={{
-                  __html: `
-                    try {
-                      googletag.cmd.push(function() { 
-                        googletag.display('div-gpt-ad-1754030700661-0-results'); 
-                      });
-                    } catch (e) {
-                      console.error('Error displaying right ad on results:', e);
-                    }
-                  `
-                }} />
-              )}
-            </div>
-          </div>
         </div>
-      )}
+      </div>
+
+      {/* Mobile Sticky Bottom Ad */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center sm:hidden">
+        <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
+          <script dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof googletag !== 'undefined') {
+                googletag.cmd.push(function() { 
+                  try {
+                    googletag.display('div-gpt-ad-1754030829221-0'); 
+                  } catch (e) {
+                    console.log('Ad display error:', e);
+                  }
+                });
+              }
+            `
+          }} />
+        </div>
+      </div>
     </div>
 
-            {/* Mini Games Section */}
-            <div className="bg-gray-800 p-6 rounded-lg">
-              <h3 className="text-xl font-bold text-white mb-4">🎯 More Cricket Games</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {miniGames.map((game, index) => (
-                  <a
-                    key={index}
-                    href={game.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackMiniGameClick(game.name, game.url)}
-                    className="group bg-gray-700 hover:bg-gray-600 p-4 rounded-lg transition-all duration-200 hover:scale-105"
-                  >
-                    <div className="text-2xl mb-2">{game.icon}</div>
-                    <div className="text-sm font-medium text-white group-hover:text-blue-400 transition-colors">
-                      {game.name}
-                    </div>
-                  </a>
-                ))}
+    {/* Game Selector Modal */}
+    {showGameSelector && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-white">Previous Games</h2>
+            <button
+              onClick={() => setShowGameSelector(false)}
+              className="text-gray-400 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="space-y-3">
+            {availableDates.length === 0 && (
+              <div className="text-center text-gray-400 py-8">
+                <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No previous games available</p>
               </div>
+            )}
+            
+            {availableDates.map((gameDate, index) => (
+              <button
+                key={index}
+                onClick={() => handleDateSelect(gameDate.date)}
+                className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-blue-400" />
+                  <div>
+                    <div className="text-white font-medium">{gameDate.date}</div>
+                    <div className="text-gray-300 text-sm">{gameDate.question}</div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
