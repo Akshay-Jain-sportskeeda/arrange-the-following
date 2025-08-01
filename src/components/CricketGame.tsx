@@ -483,8 +483,8 @@ export default function CricketGame() {
           </div>
 
           {/* Game Stats */}
-          <div className="bg-gray-800 p-4">
-            <div className="max-w-4xl mx-auto">
+          <div className="p-4">
+            <div className="max-w-4xl mx-auto bg-gray-800 rounded-lg p-4">
             <h2 className="text-base font-bold text-white mb-3">Game Statistics</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div className="text-center p-2 bg-blue-900/30 rounded-lg border border-blue-400/30">
@@ -509,7 +509,6 @@ export default function CricketGame() {
                 </div>
                 <div className="text-xs text-gray-300">Accuracy</div>
               </div>
-            </div>
             </div>
           </div>
 
