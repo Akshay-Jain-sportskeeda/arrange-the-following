@@ -543,7 +543,8 @@ export default function CricketGame() {
           </div>
 
           {/* Other Games Section */}
-          <div className="p-4 bg-gray-800 max-w-4xl mx-auto">
+          <div className="p-4">
+            <div className="max-w-4xl mx-auto bg-gray-800 rounded-lg p-4">
             <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
               <Gamepad2 className="w-4 h-4 text-purple-400" />
               More Cricket Games
@@ -589,9 +590,11 @@ export default function CricketGame() {
               </a>
             </div>
           </div>
+          </div>
 
           {/* Correct Order Display */}
-          <div className="p-4 bg-gray-800 max-w-4xl mx-auto">
+          <div className="p-4">
+            <div className="max-w-4xl mx-auto bg-gray-800 rounded-lg p-4">
             <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
               <Trophy className="w-4 h-4 text-green-400" />
               Correct Order - {gameData.question}
@@ -623,6 +626,7 @@ export default function CricketGame() {
                 </div>
               ))}
             </div>
+          </div>
           </div>
 
         </div>
