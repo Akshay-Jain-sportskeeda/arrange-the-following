@@ -511,6 +511,7 @@ export default function CricketGame() {
               </div>
             </div>
           </div>
+          </div>
 
           {/* Play Again Button */}
           <div className="text-center p-4 max-w-4xl mx-auto">
