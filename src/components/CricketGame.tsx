@@ -772,40 +772,36 @@ export default function CricketGame() {
 
           {/* Main Results Content */}
           <div className="flex-1 text-center space-y-6">
-        <div className="min-h-screen bg-gray-900 text-white">
-          {/* Desktop Layout with Side Ads */}
-          <div className="hidden sm:flex">
-            {/* Left Ad */}
-            <div className="w-[300px] flex-shrink-0 sticky top-4 h-fit p-4">
-              <div 
-                id="div-gpt-ad-1754030483680-0-results" 
-                className="bg-gray-800 rounded"
-                style={{ minWidth: '300px', minHeight: '250px' }}
-              >
+        <div className="min-h-screen bg-gray-900 text-white flex">
+          {/* Left Side Ad - Desktop Only */}
+          <div className="hidden sm:block w-[300px] flex-shrink-0 sticky top-4 h-fit p-4">
+            <div 
+              id="div-gpt-ad-1754030483680-0-results" 
+              className="bg-gray-800 border border-gray-700"
+              style={{ minWidth: '300px', minHeight: '250px' }}
+            >
+              {typeof window !== 'undefined' && window.googletag && (
                 <script
                   dangerouslySetInnerHTML={{
                     __html: `
                       try {
-                        if (typeof googletag !== 'undefined' && googletag.display) {
-                          googletag.cmd.push(function() { 
-                            googletag.display('div-gpt-ad-1754030483680-0-results'); 
-                          });
-                        }
+                        googletag.cmd.push(function() { 
+                          googletag.display('div-gpt-ad-1754030483680-0-results'); 
+                        });
                       } catch (e) {
                         console.log('Ad display error:', e);
                       }
                     `
                   }}
                 />
-              </div>
+              )}
             </div>
+          </div>
 
-            {/* Main Content */}
-            <div className="flex-1 p-4">
+          {/* Main Content */}
+          <div className="flex-1 px-4 sm:px-6">
+            <div className="max-w-2xl mx-auto py-8">
               <div className="max-w-2xl mx-auto">
-                <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold mb-2">
-                    {gameWon ? '🎉 Congratulations!' : '😔 Game Over'}
                   </h1>
                   <p className="text-gray-300">
                     {gameWon 
@@ -883,111 +879,6 @@ export default function CricketGame() {
               </div>
             </div>
           </div>
-
-          {/* Mobile Layout */}
-          <div className="sm:hidden p-4">
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold mb-2">
-                {gameWon ? '🎉 Congratulations!' : '😔 Game Over'}
-              </h1>
-              <p className="text-gray-300">
-                {gameWon 
-                  ? `You got it right in ${attempts} attempt${attempts !== 1 ? 's' : ''}!`
-                  : "Don't worry, try again tomorrow!"
-                }
-              </p>
-            </div>
-          </div>
-        </div>
-        </div>
-        </div>
-      </>
-    );
-  }
-
-  return (
-    <>
-    <div className="min-h-screen bg-gray-900 p-2">
-      {/* Desktop Layout with Side Ads */}
-      <div className="hidden sm:flex max-w-7xl mx-auto gap-4">
-        {/* Left Side Ad - Desktop Only */}
-        <div className="w-[300px] flex-shrink-0">
-          <div className="sticky top-4">
-            <div id='div-gpt-ad-1754030483680-0' style={{minWidth: '300px', minHeight: '250px'}} className="bg-gray-800 rounded-lg">
-              <script dangerouslySetInnerHTML={{
-                __html: `
-                  if (typeof googletag !== 'undefined') {
-                    googletag.cmd.push(function() { 
-                      googletag.display('div-gpt-ad-1754030483680-0'); 
-                    });
-                  }
-                `
-              }} />
-            </div>
-          </div>
-        </div>
-        
-        {/* Main Game Content */}
-        <div className="flex-1 max-w-2xl">
-          {/* Header */}
-          <div className="text-center mb-3">
-            <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
-              🏏 Cricket Arrange Game
-            </h1>
-          </div>
-
-          {/* Game Complete Messages */}
-          {gameComplete && !showResults && (
-            <div className="text-center mb-4">
-              {gameWon ? (
-                <div className="bg-green-900/30 border border-green-400/30 rounded-lg p-3 shadow-md max-w-sm mx-auto">
-                  <Trophy className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                  <h2 className="text-base font-bold text-green-400 mb-1">
-                    🎉 Congratulations!
-                  </h2>
-                  <p className="text-green-300 text-xs">
-                    You arranged all players correctly in {attempts} attempts!
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-red-900/30 border border-red-400/30 rounded-lg p-3 shadow-md max-w-sm mx-auto">
-                  <AlertCircle className="w-6 h-6 text-red-400 mx-auto mb-2" />
-                  <h2 className="text-base font-bold text-red-400 mb-1">
-                    Game Over!
-                  </h2>
-                  <p className="text-red-300 text-xs">
-                    {gaveUp 
-                      ? "You gave up! Check the results to see the correct answer."
-                      : "You've used all 5 attempts. Check the results!"
-                    }
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Player Pool */}
-          <div className="bg-gray-800 rounded-lg p-3 mb-3">
-            <h2 className="text-sm font-bold text-white mb-2">
-              {gameData.question}
-            </h2>
-            
-            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-              {availablePlayers.map((player) => (
-                <div
-                  key={player.id}
-                  onClick={() => handlePlayerClick(player)}
-                  className={`
-                    p-2 rounded-lg border transition-all duration-300 cursor-pointer text-center
-                    ${selectedPlayer?.id === player.id 
-                      ? 'border-blue-400 bg-blue-900/30 shadow-md transform scale-105' 
-                      : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
-                    }
-                    ${animatingPlayer === player.id ? 'animate-pulse' : ''}
-                  `}
-                >
-                  <img
-                    src={player.image}
                     alt={player.name}
                     className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
                     onError={(e) => {
@@ -1045,24 +936,12 @@ export default function CricketGame() {
                         className="absolute -top-1 -right-1 w-4 h-4 bg-gray-500 hover:bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-200 z-10"
                         disabled={gameComplete}
                       >
-                        ×
-                      </button>
-                      <img
-                        src={player.image}
-                        alt={player.name}
-                        className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
-                        }}
-                      />
-                      <h3 className="font-medium text-white text-xs leading-tight">{player.name}</h3>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-500 text-xs">
-                      {selectedPlayer ? 'Click here' : 'Empty'}
-                    </div>
-                  )}
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <Trophy className="w-8 h-8 text-yellow-400" />
+                  <h1 className="text-2xl sm:text-2xl font-bold">
+                    {won ? 'Congratulations! 🎉' : 'Game Over'}
+                  </h1>
                 </div>
               ))}
               
@@ -1307,73 +1186,86 @@ export default function CricketGame() {
               if (typeof googletag !== 'undefined') {
                 googletag.cmd.push(function() { 
                   try {
-                    googletag.display('div-gpt-ad-1754030936119-0'); 
-                  } catch (e) {
-                    console.log('Ad display error:', e);
-                  }
-                });
-              }
-            `
-          }} />
-        </div>
-      </div>
-
-      {/* Mobile Sticky Bottom Ad */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center sm:hidden">
-        <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
-          <script dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof googletag !== 'undefined') {
-                googletag.cmd.push(function() { 
-                  try {
+                      <div className="text-sm text-gray-400">
+                        {feedback[index]?.filter(f => f === 'correct').length || 0}/5 correct
                     googletag.display('div-gpt-ad-1754030829221-0'); 
-                  } catch (e) {
-                    console.log('Ad display error:', e);
-                  }
-                });
-              }
-            `
-          }} />
-        </div>
-      </div>
-    </div>
-
-    {/* Game Selector Modal */}
-    {showGameSelector && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-white">Previous Games</h2>
-            <button
-              onClick={() => setShowGameSelector(false)}
-              className="text-gray-400 hover:text-white"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-          
-          <div className="space-y-3">
-            {availableDates.length === 0 && (
-              <div className="text-center text-gray-400 py-8">
-                <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="text-sm">No previous games available</p>
-              </div>
-            )}
-            
-            {availableDates.map((gameDate, index) => (
-              <button
-                key={index}
-                onClick={() => handleDateSelect(gameDate.date)}
-                className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-blue-400" />
-                  <div>
-                    <div className="text-white font-medium">{gameDate.date}</div>
-                    <div className="text-gray-300 text-sm">{gameDate.question}</div>
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              </button>
+              </div>
+
+              {/* Correct Answer */}
+              <div className="bg-gray-800 rounded-lg p-6 mb-6">
+                <h2 className="text-xl font-semibold mb-4 text-center text-green-400">Correct Batting Order:</h2>
+                <div className="space-y-3">
+                  {correctOrder.map((player, index) => (
+                    <div key={player.id} className="flex items-center gap-4 p-3 bg-gray-700 rounded-lg">
+                      <div className="flex items-center justify-center w-8 h-8 bg-green-600 text-white rounded-full font-bold">
+                        {index + 1}
+                      </div>
+                      <img
+                        src={player.image}
+                        alt={player.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="font-semibold text-white">{player.name}</div>
+                        <div className="text-sm text-gray-400">{player.runs}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
+                <button
+                  onClick={handlePlayAgain}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                  Play Again
+                </button>
+                <button
+                  onClick={() => setShowPreviousGames(true)}
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <Calendar className="w-5 h-5" />
+                  Previous Games
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                >
+                  <Share2 className="w-5 h-5" />
+                  Share Result
+                </button>
+              </div>
+
+          </div>
+              {/* Attempts Summary */}
+          {/* Right Side Ad - Desktop Only */}
+          <div className="hidden sm:block w-[300px] flex-shrink-0 sticky top-4 h-fit p-4">
+            <div 
+              id="div-gpt-ad-1754030700661-0-results" 
+              className="bg-gray-800 border border-gray-700"
+              style={{ minWidth: '300px', minHeight: '250px' }}
+            >
+              {typeof window !== 'undefined' && window.googletag && (
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      try {
+                        googletag.cmd.push(function() { 
+                          googletag.display('div-gpt-ad-1754030700661-0-results'); 
+                        });
+                      } catch (e) {
+                        console.log('Ad display error:', e);
+                      }
+                    `
+                  }}
+                />
+              )}
             ))}
           </div>
         </div>
