@@ -106,120 +106,138 @@ export default function CricketGame() {
       setLoading(true);
       setError(null);
       
-      // Convert Google Sheets URL to CSV export URL
-      const sheetId = '1H_VnLMaJMqVh6948t-lK6EUd01sQ8JsElhG7beNiaPQ';
-      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
-      
-      const response = await fetch(csvUrl);
-      if (!response.ok) {
-        throw new Error('Failed to fetch data from Google Sheets');
-      }
-      
-      const csvText = await response.text();
-      const rows = csvText.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '').trim()));
-      
-      if (rows.length < 2) {
-        throw new Error('No data found in the spreadsheet');
-      }
-      
-      // Extract all available dates for the game selector
-      const dates: GameDate[] = [];
-      rows.slice(1).forEach(row => {
-        if (row[0] && row[2] && row[0] !== currentDate) { // date and question exist, exclude current date
-          const rowDate = new Date(row[0]);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+      // Try to fetch from Google Sheets first
+      try {
+        const sheetId = '1H_VnLMaJMqVh6948t-lK6EUd01sQ8JsElhG7beNiaPQ';
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+        
+        const response = await fetch(csvUrl, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Accept': 'text/csv,text/plain,*/*'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const csvText = await response.text();
+        
+        if (!csvText || csvText.trim().length === 0) {
+          throw new Error('Empty response from Google Sheets');
+        }
+        
+        const rows = csvText.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '').trim()));
+        
+        if (rows.length < 2) {
+          throw new Error('Insufficient data in the spreadsheet');
+        }
+        
+        // Extract all available dates for the game selector
+        const dates: GameDate[] = [];
+        rows.slice(1).forEach(row => {
+          if (row[0] && row[2] && row[0] !== currentDate) { // date and question exist, exclude current date
+            const rowDate = new Date(row[0]);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+            
+            // Only include dates that are in the past
+            if (rowDate < today) {
+              dates.push({
+                date: row[0],
+                question: row[2]
+              });
+            }
+          }
+        });
+        // Sort dates in descending order and take only the 5 most recent past dates
+        const sortedDates = dates.sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateB.getTime() - dateA.getTime();
+        }).slice(0, 5);
+        setAvailableDates(sortedDates);
+        
+        // Find the row with today's date (skip header row)
+        const dateToFind = targetDate || currentDate;
+        let dataRow = rows.slice(1).find(row => row[0] === dateToFind);
+        
+        // If today's data is not found, use the most recent available date
+        if (!dataRow) {
+          const allAvailableDates = rows.slice(1)
+            .filter(row => row[0] && row[2]) // has date and question
+            .sort((a, b) => {
+              const dateA = new Date(a[0]);
+              const dateB = new Date(b[0]);
+              return dateB.getTime() - dateA.getTime();
+            });
           
-          // Only include dates that are in the past
-          if (rowDate < today) {
-            dates.push({
-              date: row[0],
-              question: row[2]
+          if (allAvailableDates.length > 0) {
+            dataRow = allAvailableDates[0];
+            // Update currentDate to reflect the actual date being used
+            if (!targetDate) {
+              setCurrentDate(dataRow[0]);
+            }
+          } else {
+            throw new Error(`No game data found in the spreadsheet`);
+          }
+        } else if (targetDate) {
+          // Update currentDate when a specific date was selected and found
+          setCurrentDate(targetDate);
+        }
+        
+        if (dataRow.length < 18) {
+          throw new Error('Incomplete data in the spreadsheet');
+        }
+        
+        const players: Player[] = [];
+        
+        // Extract player data (5 players, 3 columns each: name, stats, image)
+        for (let i = 0; i < 5; i++) {
+          const nameIndex = 3 + (i * 3);
+          const statsIndex = 4 + (i * 3);
+          const imageIndex = 5 + (i * 3);
+          
+          if (dataRow[nameIndex] && dataRow[statsIndex] && dataRow[imageIndex]) {
+            players.push({
+              id: i + 1,
+              name: dataRow[nameIndex],
+              stats: dataRow[statsIndex],
+              image: dataRow[imageIndex],
+              correctPosition: i + 1
             });
           }
         }
-      });
-      // Sort dates in descending order and take only the 5 most recent past dates
-      const sortedDates = dates.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateB.getTime() - dateA.getTime();
-      }).slice(0, 5);
-      setAvailableDates(sortedDates);
-      
-      // Find the row with today's date (skip header row)
-      const dateToFind = targetDate || currentDate;
-      let dataRow = rows.slice(1).find(row => row[0] === dateToFind);
-      
-      // If today's data is not found, use the most recent available date
-      if (!dataRow) {
-        const allAvailableDates = rows.slice(1)
-          .filter(row => row[0] && row[2]) // has date and question
-          .sort((a, b) => {
-            const dateA = new Date(a[0]);
-            const dateB = new Date(b[0]);
-            return dateB.getTime() - dateA.getTime();
-          });
         
-        if (allAvailableDates.length > 0) {
-          dataRow = allAvailableDates[0];
-          // Update currentDate to reflect the actual date being used
-          if (!targetDate) {
-            setCurrentDate(dataRow[0]);
-          }
-        } else {
-          throw new Error(`No game data found in the spreadsheet`);
+        if (players.length === 0) {
+          throw new Error('No valid player data found');
         }
-      } else if (targetDate) {
-        // Update currentDate when a specific date was selected and found
-        setCurrentDate(targetDate);
-      }
-      
-      if (dataRow.length < 18) {
-        throw new Error('Incomplete data in the spreadsheet');
-      }
-      
-      const players: Player[] = [];
-      
-      // Extract player data (5 players, 3 columns each: name, stats, image)
-      for (let i = 0; i < 5; i++) {
-        const nameIndex = 3 + (i * 3);
-        const statsIndex = 4 + (i * 3);
-        const imageIndex = 5 + (i * 3);
         
-        if (dataRow[nameIndex] && dataRow[statsIndex] && dataRow[imageIndex]) {
-          players.push({
-            id: i + 1,
-            name: dataRow[nameIndex],
-            stats: dataRow[statsIndex],
-            image: dataRow[imageIndex],
-            correctPosition: i + 1
-          });
-        }
+        const gameData: GameData = {
+          date: dataRow[0] || new Date().toLocaleDateString(),
+          order: dataRow[1] || 'ascending',
+          question: dataRow[2] || 'Arrange the players',
+          players: players
+        };
+        
+        // Shuffle players for the game
+        const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+        gameData.players = shuffledPlayers;
+        
+        setGameData(gameData);
+        setArrangedPlayers(new Array(players.length).fill(null));
+        setPositionColors(new Array(players.length).fill(''));
+        
+      } catch (sheetsError) {
+        console.warn('Google Sheets fetch failed:', sheetsError);
+        throw sheetsError; // Re-throw to trigger fallback
       }
-      
-      if (players.length === 0) {
-        throw new Error('No valid player data found');
-      }
-      
-      const gameData: GameData = {
-        date: dataRow[0] || new Date().toLocaleDateString(),
-        order: dataRow[1] || 'ascending',
-        question: dataRow[2] || 'Arrange the players',
-        players: players
-      };
-      
-      // Shuffle players for the game
-      const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
-      gameData.players = shuffledPlayers;
-      
-      setGameData(gameData);
-      setArrangedPlayers(new Array(players.length).fill(null));
-      setPositionColors(new Array(players.length).fill(''));
       
     } catch (err) {
-      console.error('Error fetching game data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load game data');
+      console.warn('Using fallback data due to error:', err);
+      setError('Using demo data - Google Sheets unavailable');
       
       // Fallback data
       const fallbackData: GameData = {
