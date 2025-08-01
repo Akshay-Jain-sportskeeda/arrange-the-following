@@ -802,121 +802,263 @@ export default function CricketGame() {
           <div className="flex-1 px-4 sm:px-6">
             <div className="max-w-2xl mx-auto py-8">
               <div className="max-w-2xl mx-auto">
-                  </h1>
-                  <p className="text-gray-300">
-                    {gameWon 
-                      ? `You got it right in ${attempts} attempt${attempts !== 1 ? 's' : ''}!`
-                      : "Don't worry, try again tomorrow!"
-                    }
-                  </p>
-                </div>
+                <h1 className="text-3xl font-bold mb-4 text-center">
+                  {gameWon ? 'Congratulations! 🎉' : 'Game Over'}
+                </h1>
+                <p className="text-gray-300">
+                  {gameWon 
+                    ? `You got it right in ${attempts} attempt${attempts !== 1 ? 's' : ''}!`
+                    : "Don't worry, try again tomorrow!"
+                  }
+                </p>
+              </div>
 
-                <div className="bg-gray-800 rounded-lg p-6 mb-6">
-                  <h2 className="text-xl font-semibold mb-4 text-center">Correct Batting Order:</h2>
-                  <div className="space-y-2">
-                    {correctOrder.map((player, index) => (
-                      <div key={player.id} className="flex items-center p-3 bg-gray-700 rounded-lg">
-                        <span className="text-green-400 font-bold mr-3">{index + 1}.</span>
-                        <img 
-                          src={player.image} 
-                          alt={player.name}
-                          className="w-10 h-10 rounded-full mr-3 object-cover"
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium">{player.name}</div>
-                          <div className="text-sm text-gray-400">{player.stats}</div>
-                        </div>
+              <div className="bg-gray-800 rounded-lg p-6 mb-6">
+                <h2 className="text-xl font-semibold mb-4 text-center">Correct Batting Order:</h2>
+                <div className="space-y-2">
+                  {correctOrder.map((player, index) => (
+                    <div key={player.id} className="flex items-center p-3 bg-gray-700 rounded-lg">
+                      <span className="text-green-400 font-bold mr-3">{index + 1}.</span>
+                      <img 
+                        src={player.image} 
+                        alt={player.name}
+                        className="w-10 h-10 rounded-full mr-3 object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="font-medium">{player.name}</div>
+                        <div className="text-sm text-gray-400">{player.stats}</div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-4 justify-center">
-                  <button
-                    onClick={resetGame}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Play Again
-                  </button>
-                  <button
-                    onClick={() => setShowGameSelector(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Previous Games
-                  </button>
-                  <button
-                    onClick={handleShare}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    Share Results
-                  </button>
+                    </div>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            {/* Right Ad */}
-            <div className="w-[300px] flex-shrink-0 sticky top-4 h-fit p-4">
-              <div 
-                id="div-gpt-ad-1754030700661-0-results" 
-                className="bg-gray-800 rounded"
-                style={{ minWidth: '300px', minHeight: '250px' }}
-              >
-                <script
-                  dangerouslySetInnerHTML={{
-                    __html: `
-                      try {
-                        if (typeof googletag !== 'undefined' && googletag.display) {
-                          googletag.cmd.push(function() { 
-                            googletag.display('div-gpt-ad-1754030700661-0-results'); 
-                          });
-                        }
-                      } catch (e) {
-                        console.log('Ad display error:', e);
-                      }
-                    `
-                  }}
-                />
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={resetGame}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Play Again
+                </button>
+                <button
+                  onClick={() => setShowGameSelector(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Previous Games
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Share Results
+                </button>
               </div>
             </div>
           </div>
+
+          {/* Right Ad */}
+          <div className="w-[300px] flex-shrink-0 sticky top-4 h-fit p-4">
+            <div 
+              id="div-gpt-ad-1754030700661-0-results" 
+              className="bg-gray-800 rounded"
+              style={{ minWidth: '300px', minHeight: '250px' }}
+            >
+              <script
+                dangerouslySetInnerHTML={{
+                  __html: `
+                    try {
+                      if (typeof googletag !== 'undefined' && googletag.display) {
+                        googletag.cmd.push(function() { 
+                          googletag.display('div-gpt-ad-1754030700661-0-results'); 
+                        });
+                      }
+                    } catch (e) {
+                      console.log('Ad display error:', e);
+                    }
+                  `
+                }}
+              />
+            </div>
+          </div>
+        </div>
+        </div>
+        </div>
+      </>
+    );
+  }
+
+  // Game Selector Modal
+  if (showGameSelector) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-white">Previous Games</h2>
+            <button
+              onClick={() => setShowGameSelector(false)}
+              className="text-gray-400 hover:text-white"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+          
+          <div className="space-y-3">
+            {availableDates.length > 0 ? (
+              availableDates.map((gameDate) => (
+                <button
+                  key={gameDate.date}
+                  onClick={() => handleDateSelect(gameDate.date)}
+                  className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                >
+                  <div className="font-medium text-white">{gameDate.date}</div>
+                  <div className="text-sm text-gray-300">{gameDate.question}</div>
+                </button>
+              ))
+            ) : (
+              <div className="text-center text-gray-400 py-8">
+                <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <p>No previous games available</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main Game Interface
+  return (
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Desktop Layout with Ads */}
+      <div className="hidden sm:flex gap-6">
+        {/* Left Side Ad - Desktop Only */}
+        <div className="w-[300px] flex-shrink-0">
+          <div className="sticky top-4">
+            <div id='div-gpt-ad-1754030483680-0' style={{minWidth: '300px', minHeight: '250px'}} className="bg-gray-800 rounded-lg">
+              <script dangerouslySetInnerHTML={{
+                __html: `
+                  if (typeof googletag !== 'undefined') {
+                    googletag.cmd.push(function() { 
+                      googletag.display('div-gpt-ad-1754030483680-0'); 
+                    });
+                  }
+                `
+              }} />
+            </div>
+          </div>
+        </div>
+        
+        {/* Main Game Content */}
+        <div className="flex-1 max-w-2xl mx-auto p-4">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              🏏 Cricket Arrange Game
+            </h1>
+            <div className="flex justify-center items-center gap-4 mb-4">
+              <div className="text-sm text-gray-300">
+                Date: {currentDate}
+              </div>
+              <button
+                onClick={() => setShowGameSelector(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm font-medium transition-colors flex items-center gap-1"
+              >
+                <Calendar className="w-3 h-3" />
+                Previous Games
+              </button>
+            </div>
+          </div>
+
+          {/* Game Complete Messages */}
+          {gameComplete && !showResults && (
+            <div className="text-center mb-6">
+              {gameWon ? (
+                <div className="bg-green-900/30 border border-green-400/30 rounded-lg p-4 shadow-md">
+                  <Trophy className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                  <h2 className="text-xl font-bold text-green-400 mb-2">
+                    🎉 Congratulations!
+                  </h2>
+                  <p className="text-green-300">
+                    You arranged all players correctly in {attempts} attempts!
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-red-900/30 border border-red-400/30 rounded-lg p-4 shadow-md">
+                  <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
+                  <h2 className="text-xl font-bold text-red-400 mb-2">
+                    Game Over!
+                  </h2>
+                  <p className="text-red-300">
+                    {gaveUp 
+                      ? "You gave up! Check the results to see the correct answer."
+                      : "You've used all 5 attempts. Check the results!"
+                    }
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Player Pool */}
+          <div className="bg-gray-800 rounded-lg p-4 mb-6">
+            <h2 className="text-lg font-bold text-white mb-4">
+              {gameData.question}
+            </h2>
+            
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+              {availablePlayers.map((player) => (
+                <div
+                  key={player.id}
+                  onClick={() => handlePlayerClick(player)}
+                  className={`
+                    p-3 rounded-lg border transition-all duration-300 cursor-pointer text-center
+                    ${selectedPlayer?.id === player.id 
+                      ? 'border-blue-400 bg-blue-900/30 shadow-md transform scale-105' 
+                      : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
+                    }
+                    ${animatingPlayer === player.id ? 'animate-pulse' : ''}
+                  `}
+                >
+                  <img
+                    src={player.image}
                     alt={player.name}
-                    className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
+                    className="w-12 h-12 rounded-full object-cover border border-gray-600 mx-auto mb-2"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
                     }}
                   />
-                  <h3 className="font-medium text-white text-xs leading-tight">{player.name}</h3>
+                  <h3 className="font-medium text-white text-sm leading-tight">{player.name}</h3>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Arrangement Area */}
-          <div className="bg-gray-800 rounded-lg p-3 mb-3">
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="text-sm font-bold text-white">
+          <div className="bg-gray-800 rounded-lg p-4 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-white">
                 Your Answer
               </h2>
-              <div className="flex items-center gap-1">
-                <AlertCircle className="w-3 h-3 text-orange-400" />
-                <span className="text-xs font-medium text-gray-300">Attempts:</span>
-                <span className="text-sm font-bold text-orange-400">{attempts}/5</span>
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-orange-400" />
+                <span className="text-sm font-medium text-gray-300">Attempts:</span>
+                <span className="text-lg font-bold text-orange-400">{attempts}/5</span>
               </div>
             </div>
             
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
               {arrangedPlayers.map((player, index) => (
                 <div
                   key={index}
                   onClick={() => handlePositionClick(index)}
                   className={`
-                    p-1.5 rounded-lg border-2 transition-all duration-300 cursor-pointer min-h-[50px] text-center relative
+                    p-3 rounded-lg border-2 transition-all duration-300 cursor-pointer min-h-[80px] text-center relative
                     ${getPositionBorderColor(index)}
                     hover:border-blue-400 hover:bg-blue-900/20
                   `}
                 >
-                  <div className={`absolute top-1 left-1 text-xs font-bold ${
+                  <div className={`absolute top-2 left-2 text-sm font-bold ${
                     positionColors[index] === 'green' 
                       ? 'text-green-400' 
                       : positionColors[index] === 'red'
@@ -933,33 +1075,45 @@ export default function CricketGame() {
                           e.stopPropagation();
                           handleRemovePlayer(index);
                         }}
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-gray-500 hover:bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-200 z-10"
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-gray-500 hover:bg-gray-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors duration-200 z-10"
                         disabled={gameComplete}
                       >
-              <div className="text-center mb-8">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <Trophy className="w-8 h-8 text-yellow-400" />
-                  <h1 className="text-2xl sm:text-2xl font-bold">
-                    {won ? 'Congratulations! 🎉' : 'Game Over'}
-                  </h1>
+                        ×
+                      </button>
+                      <img
+                        src={player.image}
+                        alt={player.name}
+                        className="w-12 h-12 rounded-full object-cover border border-gray-600 mx-auto mb-2"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
+                        }}
+                      />
+                      <h3 className="font-medium text-white text-sm leading-tight">{player.name}</h3>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                      {selectedPlayer ? 'Click here' : 'Empty'}
+                    </div>
+                  )}
                 </div>
               ))}
               
               {/* Submit Button next to 5th tile */}
               <div className="flex items-center justify-center">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                   <button
                     onClick={handleSubmit}
                     disabled={!canSubmit || gameComplete}
                     className={`
-                      px-2 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
+                      px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg
                       ${canSubmit && !gameComplete
                         ? 'bg-green-600 hover:bg-green-700 text-white transform hover:scale-105'
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                       }
                     `}
                   >
-                    <Send className="w-3 h-3" />
+                    <Send className="w-4 h-4" />
                     Submit
                   </button>
                   
@@ -967,14 +1121,14 @@ export default function CricketGame() {
                     onClick={handleGiveUp}
                     disabled={gameComplete}
                     className={`
-                      px-2 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
+                      px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 shadow-lg
                       ${!gameComplete
                         ? 'bg-red-600 hover:bg-red-700 text-white transform hover:scale-105'
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                       }
                     `}
                   >
-                    <Flag className="w-3 h-3" />
+                    <Flag className="w-4 h-4" />
                     Give Up
                   </button>
                 </div>
@@ -1178,6 +1332,25 @@ export default function CricketGame() {
         </div>
       </div>
       
+      {/* Mobile Sticky Bottom Ad */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center sm:hidden">
+        <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
+          <script dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof googletag !== 'undefined') {
+                googletag.cmd.push(function() { 
+                  try {
+                    googletag.display('div-gpt-ad-1754030829221-0'); 
+                  } catch (e) {
+                    console.log('Ad display error:', e);
+                  }
+                });
+              }
+            `
+          }} />
+        </div>
+      </div>
+      
       {/* Desktop Bottom Sticky Ad */}
       <div className="hidden sm:block fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center">
         <div id='div-gpt-ad-1754030936119-0' style={{minWidth: '970px', minHeight: '90px'}} className="bg-gray-800 rounded-lg">
@@ -1186,91 +1359,16 @@ export default function CricketGame() {
               if (typeof googletag !== 'undefined') {
                 googletag.cmd.push(function() { 
                   try {
-                      <div className="text-sm text-gray-400">
-                        {feedback[index]?.filter(f => f === 'correct').length || 0}/5 correct
-                    googletag.display('div-gpt-ad-1754030829221-0'); 
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Correct Answer */}
-              <div className="bg-gray-800 rounded-lg p-6 mb-6">
-                <h2 className="text-xl font-semibold mb-4 text-center text-green-400">Correct Batting Order:</h2>
-                <div className="space-y-3">
-                  {correctOrder.map((player, index) => (
-                    <div key={player.id} className="flex items-center gap-4 p-3 bg-gray-700 rounded-lg">
-                      <div className="flex items-center justify-center w-8 h-8 bg-green-600 text-white rounded-full font-bold">
-                        {index + 1}
-                      </div>
-                      <img
-                        src={player.image}
-                        alt={player.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                      <div className="flex-1">
-                        <div className="font-semibold text-white">{player.name}</div>
-                        <div className="text-sm text-gray-400">{player.runs}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
-                <button
-                  onClick={handlePlayAgain}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  <RotateCcw className="w-5 h-5" />
-                  Play Again
-                </button>
-                <button
-                  onClick={() => setShowPreviousGames(true)}
-                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  <Calendar className="w-5 h-5" />
-                  Previous Games
-                </button>
-                <button
-                  onClick={handleShare}
-                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  <Share2 className="w-5 h-5" />
-                  Share Result
-                </button>
-              </div>
-
-          </div>
-              {/* Attempts Summary */}
-          {/* Right Side Ad - Desktop Only */}
-          <div className="hidden sm:block w-[300px] flex-shrink-0 sticky top-4 h-fit p-4">
-            <div 
-              id="div-gpt-ad-1754030700661-0-results" 
-              className="bg-gray-800 border border-gray-700"
-              style={{ minWidth: '300px', minHeight: '250px' }}
-            >
-              {typeof window !== 'undefined' && window.googletag && (
-                <script
-                  dangerouslySetInnerHTML={{
-                    __html: `
-                      try {
-                        googletag.cmd.push(function() { 
-                          googletag.display('div-gpt-ad-1754030700661-0-results'); 
-                        });
-                      } catch (e) {
-                        console.log('Ad display error:', e);
-                      }
-                    `
-                  }}
-                />
-              )}
-            ))}
-          </div>
+                    googletag.display('div-gpt-ad-1754030936119-0'); 
+                  } catch (e) {
+                    console.log('Ad display error:', e);
+                  }
+                });
+              }
+            `
+          }} />
         </div>
       </div>
-    )}
-    </>
+    </div>
   );
 }
