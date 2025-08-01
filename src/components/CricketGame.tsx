@@ -457,26 +457,28 @@ export default function CricketGame() {
       <>
         <div className="min-h-screen bg-gray-900">
           {/* Results Header */}
-          <div className="bg-gray-800 p-4">
-            <div className="text-center max-w-4xl mx-auto">
-            <div className="mb-3">
-              {gameWon ? (
-                <Trophy className="w-10 h-10 text-yellow-400 mx-auto mb-3" />
-              ) : (
-                <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-              )}
-            </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
-              {gameWon ? '🎉 Congratulations!' : '😔 Game Over!'}
-            </h1>
-            <p className="text-sm text-gray-300 mb-3">
-              {gameWon 
-                ? `You completed the challenge in ${attempts} attempts!`
-                : gaveUp 
-                  ? `You gave up! Don't worry, it happens to the best of us.`
-                  : `You used all 5 attempts. Better luck next time!`
-              }
-            </p>
+          <div className="p-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-gray-800 rounded-lg p-4 text-center">
+                <div className="mb-3">
+                  {gameWon ? (
+                    <Trophy className="w-10 h-10 text-yellow-400 mx-auto mb-3" />
+                  ) : (
+                    <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+                  )}
+                </div>
+                <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                  {gameWon ? '🎉 Congratulations!' : '😔 Game Over!'}
+                </h1>
+                <p className="text-sm text-gray-300 mb-3">
+                  {gameWon 
+                    ? `You completed the challenge in ${attempts} attempts!`
+                    : gaveUp 
+                      ? `You gave up! Don't worry, it happens to the best of us.`
+                      : `You used all 5 attempts. Better luck next time!`
+                  }
+                </p>
+              </div>
             </div>
           </div>
 
