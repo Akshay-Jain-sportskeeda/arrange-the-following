@@ -529,61 +529,101 @@ export default function CricketGame() {
     const correctOrder = [...gameData.players].sort((a, b) => a.correctPosition - b.correctPosition);
     
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-        <div className="max-w-2xl w-full">
-          <div className="text-center mb-8">
-            <h1 className="text-xl sm:text-2xl font-bold mb-4">
-              {gameWon ? '🎉 Congratulations!' : '😞 Game Over'}
-            </h1>
-            <p className="text-gray-300 mb-6">
-              {gameWon 
-                ? `You got it right in ${attempts} attempt${attempts !== 1 ? 's' : ''}!`
-                : "Don't worry, try again tomorrow!"
-              }
-            </p>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold mb-4 text-center">Correct Batting Order:</h2>
-            <div className="space-y-2">
-              {correctOrder.map((player, index) => (
-                <div key={player.id} className="flex items-center p-3 bg-gray-800 rounded-lg">
-                  <span className="text-green-400 font-bold mr-3">{index + 1}.</span>
-                  <img 
-                    src={player.image} 
-                    alt={player.name}
-                    className="w-10 h-10 rounded-full mr-3 object-cover"
-                  />
-                  <span className="font-medium">{player.name}</span>
+      <>
+        <div className="min-h-screen bg-gray-900">
+          {/* Results Header */}
+          <div className="p-4">
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-gray-800 rounded-lg p-4 text-center">
+                <div className="mb-3">
+                  {gameWon ? (
+                    <Trophy className="w-10 h-10 text-yellow-400 mx-auto mb-3" />
+                  ) : (
+                    <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+                  )}
                 </div>
-              ))}
+                <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                  {gameWon ? '🎉 Congratulations!' : '😔 Game Over!'}
+                </h1>
+                <p className="text-sm text-gray-300 mb-3">
+                  {gameWon 
+                    ? `You completed the challenge in ${attempts} attempts!`
+                    : gaveUp 
+                      ? `You gave up! Don't worry, it happens to the best of us.`
+                      : `You used all 5 attempts. Better luck next time!`
+                  }
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
-              onClick={resetGame}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors"
-            >
-              Play Again
-            </button>
-            <button
-              onClick={handleShare}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors"
-            >
-              Share Result
-            </button>
-            <button
-              onClick={() => setShowGameSelector(true)}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors"
-            >
-              Previous Games
-            </button>
+          {/* Game Stats */}
+          <div className="p-4">
+            <div className="max-w-2xl mx-auto bg-gray-800 rounded-lg p-4">
+            <h2 className="text-base font-bold text-white mb-3">Game Statistics</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="text-center p-2 bg-blue-900/30 rounded-lg border border-blue-400/30">
+                <div className="text-lg font-bold text-blue-400">{attempts}</div>
+                <div className="text-xs text-gray-300">Attempts</div>
+              </div>
+              <div className="text-center p-2 bg-green-900/30 rounded-lg border border-green-400/30">
+                <div className="text-lg font-bold text-green-400">
+                  {positionColors.filter(color => color === 'green').length}
+                </div>
+                <div className="text-xs text-gray-300">Correct</div>
+              </div>
+              <div className="text-center p-2 bg-red-900/30 rounded-lg border border-red-400/30">
+                <div className="text-lg font-bold text-red-400">
+                  {positionColors.filter(color => color === 'red').length}
+                </div>
+                <div className="text-xs text-gray-300">Wrong</div>
+              </div>
+              <div className="text-center p-2 bg-yellow-900/30 rounded-lg border border-yellow-400/30">
+                <div className="text-lg font-bold text-yellow-400">
+                  {gameWon ? '100%' : `${Math.round((positionColors.filter(color => color === 'green').length / 5) * 100)}%`}
+                </div>
+                <div className="text-xs text-gray-300">Accuracy</div>
+              </div>
+            </div>
+          </div>
           </div>
 
-          {/* Mini Games Section */}
-          <div className="mt-8 p-6 bg-gray-800 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4 text-center">Try Our Other Games</h3>
+          {/* Play Again Button */}
+          <div className="text-center p-4 max-w-2xl mx-auto">
+            <div className="flex flex-col gap-3 justify-center items-center">
+              <div className="flex gap-3 justify-center items-center">
+                <button
+                  onClick={resetGame}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Play Again
+                </button>
+                <button
+                  onClick={handleShare}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Share
+                </button>
+              </div>
+              <button
+                onClick={() => setShowGameSelector(true)}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+              >
+                <Calendar className="w-4 h-4" />
+                Play Previous Games
+              </button>
+            </div>
+          </div>
+
+          {/* Other Games Section */}
+          <div className="p-4">
+            <div className="max-w-2xl mx-auto bg-gray-800 rounded-lg p-4">
+            <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
+              <Gamepad2 className="w-4 h-4 text-purple-400" />
+              More Cricket Games
+            </h2>
             <div className="flex gap-3 justify-center">
               <a
                 href="https://www.sportskeeda.com/cricket/quiz"
@@ -628,8 +668,87 @@ export default function CricketGame() {
               </a>
             </div>
           </div>
+          </div>
+
+          {/* Correct Order Display */}
+          <div className="p-4">
+            <div className="max-w-2xl mx-auto bg-gray-800 rounded-lg p-4">
+            <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-green-400" />
+              Correct Order - {gameData.question}
+            </h2>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              {correctOrder.map((player, index) => (
+                <div key={player.id} className="bg-green-900/30 rounded-lg p-2 border border-green-400/30">
+                  <div className="relative">
+                    <div className="absolute top-0 left-0 w-5 h-5 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-xs">
+                      {index + 1}
+                    </div>
+                    <div className="text-center pt-1">
+                      <img
+                        src={player.image}
+                        alt={player.name}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
+                        }}
+                      />
+                      <h3 className="font-semibold text-white text-xs mb-1 leading-tight">{player.name}</h3>
+                      <p className="text-xs text-gray-300 bg-gray-700 rounded px-2 py-0.5">
+                        {player.stats}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          </div>
+
         </div>
-      </div>
+
+        {/* Game Selector Popup - moved outside conditional rendering */}
+        {showGameSelector && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-blue-400" />
+                  Select Game Date
+                </h2>
+                <button
+                  onClick={() => setShowGameSelector(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-2">
+                {availableDates.map((gameDate, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDateSelect(gameDate.date)}
+                    className="w-full text-left p-3 rounded-lg border border-gray-600 hover:border-gray-500 hover:bg-gray-700/50 text-white transition-all duration-200"
+                  >
+                    <div className="font-semibold text-sm">{gameDate.date}</div>
+                    <div className="text-xs text-gray-300 mt-1">{gameDate.question}</div>
+                  </button>
+                ))}
+              </div>
+              
+              {availableDates.length === 0 && (
+                <div className="text-center text-gray-400 py-8">
+                  <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No previous games available</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 
@@ -1029,16 +1148,12 @@ export default function CricketGame() {
       
       {/* Desktop Bottom Sticky Ad */}
       <div className="hidden sm:block fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center">
-        <div id='div-gpt-ad-1754030936119-0' style={{minWidth: '970px', minHeight: '90px'}} className="bg-gray-800 rounded-lg">
+        <div id='div-gpt-ad-1754030936119-0' style={{minWidth: '970px', minHeight: '90px'}}>
           <script dangerouslySetInnerHTML={{
             __html: `
               if (typeof googletag !== 'undefined') {
                 googletag.cmd.push(function() { 
-                  try {
-                    googletag.display('div-gpt-ad-1754030936119-0'); 
-                  } catch (e) {
-                    console.log('Ad display error:', e);
-                  }
+                  googletag.display('div-gpt-ad-1754030936119-0'); 
                 });
               }
             `
@@ -1046,67 +1161,61 @@ export default function CricketGame() {
         </div>
       </div>
 
-      {/* Mobile Sticky Bottom Ad */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center sm:hidden">
-        <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
-          <script dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof googletag !== 'undefined') {
-                googletag.cmd.push(function() { 
-                  try {
-                    googletag.display('div-gpt-ad-1754030829221-0'); 
-                  } catch (e) {
-                    console.log('Ad display error:', e);
-                  }
-                });
-              }
-            `
-          }} />
-        </div>
-      </div>
-    </div>
-
-    {/* Game Selector Modal */}
-    {showGameSelector && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold text-white">Previous Games</h2>
-            <button
-              onClick={() => setShowGameSelector(false)}
-              className="text-gray-400 hover:text-white"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          </div>
-          
-          <div className="space-y-3">
+      {/* Game Selector Popup - moved outside conditional rendering */}
+      {showGameSelector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-blue-400" />
+                Select Game Date
+              </h2>
+              <button
+                onClick={() => setShowGameSelector(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-2">
+              {availableDates.map((gameDate, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleDateSelect(gameDate.date)}
+                  className="w-full text-left p-3 rounded-lg border border-gray-600 hover:border-gray-500 hover:bg-gray-700/50 text-white transition-all duration-200"
+                >
+                  <div className="font-semibold text-sm">{gameDate.date}</div>
+                  <div className="text-xs text-gray-300 mt-1">{gameDate.question}</div>
+                </button>
+              ))}
+            </div>
+            
             {availableDates.length === 0 && (
               <div className="text-center text-gray-400 py-8">
                 <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">No previous games available</p>
               </div>
             )}
-            
-            {availableDates.map((gameDate, index) => (
-              <button
-                key={index}
-                onClick={() => handleDateSelect(gameDate.date)}
-                className="w-full text-left p-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-blue-400" />
-                  <div>
-                    <div className="text-white font-medium">{gameDate.date}</div>
-                    <div className="text-gray-300 text-sm">{gameDate.question}</div>
-                  </div>
-                </div>
-              </button>
-            ))}
           </div>
         </div>
+      )}
+    </div>
+
+    {/* Mobile Sticky Bottom Ad */}
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center sm:hidden">
+      <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            if (typeof googletag !== 'undefined') {
+              googletag.cmd.push(function() { 
+                googletag.display('div-gpt-ad-1754030829221-0'); 
+              });
+            }
+          `
+        }} />
       </div>
-    )}
+    </div>
     </>
   );
 }
