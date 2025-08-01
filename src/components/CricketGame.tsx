@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { RotateCcw, Trophy, AlertCircle, Send, Calendar, ExternalLink, X, Gamepad2, Flag, Share2 } from 'lucide-react';
+import { 
+  trackGameBegin, 
+  trackGameComplete, 
+  trackSubmit, 
+  trackGiveUp, 
+  trackPlayerSelect, 
+  trackSlotSelect, 
+  trackPlayerRemove, 
+  trackPlayAgain, 
+  trackPlayPrevious, 
+  trackShare, 
+  trackMiniGameClick 
+} from '../utils/analytics';
 
 interface Player {
   id: number;
@@ -43,6 +56,9 @@ export default function CricketGame() {
   const handleGiveUp = () => {
     if (!gameData || gameComplete) return;
     
+    // Track give up event
+    trackGiveUp(attempts);
+    
     // Set all positions to correct answers
     const correctOrder = [...gameData.players].sort((a, b) => a.correctPosition - b.correctPosition);
     setArrangedPlayers(correctOrder);
@@ -57,11 +73,21 @@ export default function CricketGame() {
     setGameWon(false);
     setGaveUp(true);
     
+    // Track game completion (gave up)
+    trackGameComplete(false, 5, true);
+    
     setTimeout(() => setShowResults(true), 2000);
   };
   useEffect(() => {
     fetchGameData();
   }, []);
+
+  useEffect(() => {
+    // Track game begin when game data is loaded for the first time
+    if (gameData && attempts === 0 && !gameComplete) {
+      trackGameBegin();
+    }
+  }, [gameData]);
 
   useEffect(() => {
     if (gameData) {
@@ -248,6 +274,9 @@ export default function CricketGame() {
   };
 
   const handleDateSelect = (selectedDate: string) => {
+    // Track previous game selection
+    trackPlayPrevious(selectedDate);
+    
     setShowGameSelector(false);
     // Reset game state
     setSelectedPlayer(null);
@@ -265,11 +294,18 @@ export default function CricketGame() {
 
   const handlePlayerClick = (player: Player) => {
     if (gameComplete || showResults) return;
+    
+    // Track player selection
+    trackPlayerSelect(player.name, player.id);
+    
     setSelectedPlayer(player);
   };
 
   const handlePositionClick = (positionIndex: number) => {
     if (!selectedPlayer || gameComplete || showResults || !gameData) return;
+
+    // Track slot selection
+    trackSlotSelect(positionIndex, selectedPlayer.name);
 
     // Add animation
     setAnimatingPlayer(selectedPlayer.id);
@@ -305,6 +341,10 @@ export default function CricketGame() {
     if (gameComplete || showResults || !arrangedPlayers[positionIndex]) return;
 
     const playerToRemove = arrangedPlayers[positionIndex]!;
+    
+    // Track player removal
+    trackPlayerRemove(playerToRemove.name, positionIndex);
+    
     const newArrangedPlayers = [...arrangedPlayers];
     newArrangedPlayers[positionIndex] = null;
     
@@ -327,20 +367,31 @@ export default function CricketGame() {
       return 'red';
     });
 
-    setPositionColors(newPositionColors);
-    setAttempts(prev => prev + 1);
-
     // Check if all positions are correct
     const allCorrect = arrangedPlayers.every((player, index) => 
       player?.correctPosition === index + 1
     );
 
+    // Track submit event
+    trackSubmit(attempts + 1, allCorrect);
+
+    setPositionColors(newPositionColors);
+    setAttempts(prev => prev + 1);
+
     if (allCorrect) {
       setGameWon(true);
       setGameComplete(true);
+      
+      // Track game completion
+      trackGameComplete(true, attempts + 1, false);
+      
       setTimeout(() => setShowResults(true), 2000);
     } else if (attempts + 1 >= 5) {
       setGameComplete(true);
+      
+      // Track game completion (loss)
+      trackGameComplete(false, attempts + 1, false);
+      
       setTimeout(() => setShowResults(true), 2000);
     } else {
       // Move incorrect players back to queue after showing colors
@@ -366,6 +417,9 @@ export default function CricketGame() {
   const resetGame = () => {
     if (!gameData) return;
     
+    // Track play again
+    trackPlayAgain();
+    
     const shuffled = [...gameData.players].sort(() => Math.random() - 0.5);
     setGameData({ ...gameData, players: shuffled });
     setAvailablePlayers([...shuffled]);
@@ -381,6 +435,9 @@ export default function CricketGame() {
   };
 
   const handleShare = async () => {
+    // Track share event
+    trackShare(gameWon, attempts);
+    
     const shareText = gameWon 
       ? `🏏 I just completed the Cricket Arrange Game in ${attempts} attempts! Can you beat my score? 🎯`
       : `🏏 Just played the Cricket Arrange Game! Think you can do better? Give it a try! 🎯`;
@@ -554,6 +611,7 @@ export default function CricketGame() {
                 href="https://www.sportskeeda.com/cricket/quiz"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackMiniGameClick('Cricket Quiz', 'https://www.sportskeeda.com/cricket/quiz')}
                 className="text-white rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
@@ -567,6 +625,7 @@ export default function CricketGame() {
                 href="https://staticg.sportskeeda.com/games/cricket/guess_the_stats/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackMiniGameClick('Guess Stats', 'https://staticg.sportskeeda.com/games/cricket/guess_the_stats/index.html')}
                 className="text-white rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
@@ -580,6 +639,7 @@ export default function CricketGame() {
                 href="https://staticg.sportskeeda.com/games/cricket/hi_low_stats_game/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackMiniGameClick('Hi-Low Stats', 'https://staticg.sportskeeda.com/games/cricket/hi_low_stats_game/index.html')}
                 className="text-white rounded-lg transition-all duration-200 group shadow-lg"
               >
                 <img 
