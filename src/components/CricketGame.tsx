@@ -977,9 +977,11 @@ export default function CricketGame() {
       <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
         <script dangerouslySetInnerHTML={{
           __html: `
-            googletag.cmd.push(function() { 
-              googletag.display('div-gpt-ad-1754030829221-0'); 
-            });
+            if (typeof googletag !== 'undefined') {
+              googletag.cmd.push(function() { 
+                googletag.display('div-gpt-ad-1754030829221-0'); 
+              });
+            }
           `
         }} />
       </div>
