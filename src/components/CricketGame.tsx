@@ -78,6 +78,7 @@ export default function CricketGame() {
     
     setTimeout(() => setShowResults(true), 2000);
   };
+  
   useEffect(() => {
     fetchGameData();
   }, []);
@@ -488,6 +489,7 @@ export default function CricketGame() {
       alert(`Share this: ${fullText}`);
     });
   };
+  
   const getPositionBorderColor = (index: number) => {
     const color = positionColors[index];
     if (color === 'green') return 'border-green-400 bg-green-900/20';
@@ -803,10 +805,10 @@ export default function CricketGame() {
               <div className="max-w-2xl mx-auto">
                 <div className="text-center mb-6">
                   <h1 className="text-2xl font-bold mb-2">
-                    {won ? '🎉 Congratulations!' : '😔 Game Over'}
+                    {gameWon ? '🎉 Congratulations!' : '😔 Game Over'}
                   </h1>
                   <p className="text-gray-300">
-                    {won 
+                    {gameWon 
                       ? `You got it right in ${attempts} attempt${attempts !== 1 ? 's' : ''}!`
                       : "Don't worry, try again tomorrow!"
                     }
@@ -826,7 +828,7 @@ export default function CricketGame() {
                         />
                         <div className="flex-1">
                           <div className="font-medium">{player.name}</div>
-                          <div className="text-sm text-gray-400">{player.runs} runs</div>
+                          <div className="text-sm text-gray-400">{player.stats}</div>
                         </div>
                       </div>
                     ))}
@@ -835,19 +837,19 @@ export default function CricketGame() {
 
                 <div className="flex gap-4 justify-center">
                   <button
-                    onClick={startNewGame}
+                    onClick={resetGame}
                     className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
                   >
                     Play Again
                   </button>
                   <button
-                    onClick={() => setShowPreviousGames(true)}
+                    onClick={() => setShowGameSelector(true)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
                   >
                     Previous Games
                   </button>
                   <button
-                    onClick={shareResults}
+                    onClick={handleShare}
                     className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
                   >
                     Share Results
@@ -886,14 +888,18 @@ export default function CricketGame() {
           <div className="sm:hidden p-4">
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold mb-2">
-                {won ? '🎉 Congratulations!' : '😔 Game Over'}
+                {gameWon ? '🎉 Congratulations!' : '😔 Game Over'}
               </h1>
               <p className="text-gray-300">
-                {won 
+                {gameWon 
                   ? `You got it right in ${attempts} attempt${attempts !== 1 ? 's' : ''}!`
                   : "Don't worry, try again tomorrow!"
                 }
+              </p>
+            </div>
           </div>
+        </div>
+        </div>
         </div>
       </>
     );
