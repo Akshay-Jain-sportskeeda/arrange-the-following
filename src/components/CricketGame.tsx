@@ -745,28 +745,8 @@ export default function CricketGame() {
             </div>
           </div>
         </div>
-        <div className="flex gap-6">
-          {/* Desktop Left Ad */}
-          <div className="hidden sm:block flex-shrink-0">
-            <div 
-              id='div-gpt-ad-1754030483680-0-results' 
-              className="w-[300px] min-h-[250px] bg-gray-800 sticky top-4"
-            >
-              {typeof window !== 'undefined' && window.googletag && (
-                <script dangerouslySetInnerHTML={{
-                  __html: `
-                    try {
-                      googletag.cmd.push(function() { 
-                        googletag.display('div-gpt-ad-1754030483680-0-results'); 
-                      });
-                    } catch (e) {
-                      console.error('Error displaying left ad on results:', e);
-                    }
-                  `
-                }} />
-              )}
-            </div>
-          </div>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-gray-800 rounded-lg p-6 shadow-lg">
 
           {/* Main Results Content */}
           <div className="flex-1 text-center space-y-6">
@@ -809,27 +789,6 @@ export default function CricketGame() {
               )}
             </div>
           </div>
-
-          {/* Desktop Right Ad */}
-          <div className="hidden sm:block flex-shrink-0">
-            <div 
-              id='div-gpt-ad-1754030700661-0-results' 
-              className="w-[300px] min-h-[250px] bg-gray-800 sticky top-4"
-            >
-              {typeof window !== 'undefined' && window.googletag && (
-                <script dangerouslySetInnerHTML={{
-                  __html: `
-                    try {
-                      googletag.cmd.push(function() { 
-                        googletag.display('div-gpt-ad-1754030700661-0-results'); 
-                      });
-                    } catch (e) {
-                      console.error('Error displaying right ad on results:', e);
-                    }
-                  `
-                }} />
-              )}
-            </div>
           </div>
         </div>
       </>
