@@ -5,8 +5,50 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cricket Arrange the Following Game</title>
-    <script type="module" crossorigin src="/assets/index-DMI1LNii.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Bt5WKD8I.css">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4EZFB1FFG2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4EZFB1FFG2');
+    </script>
+    <!-- Google Publisher Tags - Mobile Only -->
+    <script>
+      // Only load ads on mobile devices
+      function isMobileDevice() {
+        return window.innerWidth < 640 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      }
+      
+      if (isMobileDevice()) {
+        // Load Google Publisher Tags script
+        var gptScript = document.createElement('script');
+        gptScript.async = true;
+        gptScript.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
+        gptScript.crossOrigin = 'anonymous';
+        document.head.appendChild(gptScript);
+        
+        // Initialize ads when script loads
+        gptScript.onload = function() {
+          window.googletag = window.googletag || {cmd: []};
+          googletag.cmd.push(function() {
+            googletag.defineSlot('/11446729/Cricket_Arrange_Game_Mob_Sticky', [[320, 50], [300, 50], [250, 250], [300, 250], [336, 280]], 'div-gpt-ad-1754030829221-0').addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.pubads().setTargeting('refresh', 'true');
+            googletag.enableServices();
+            
+            // Set up 30-second refresh for all ads
+            setInterval(function() {
+              googletag.cmd.push(function() {
+                googletag.pubads().refresh();
+              });
+            }, 30000);
+          });
+        };
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-B7kEvcaB.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-ByvK7VFL.css">
   </head>
   <body>
     <div id="root"></div>
