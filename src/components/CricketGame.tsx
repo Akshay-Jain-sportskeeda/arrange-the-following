@@ -972,7 +972,7 @@ export default function CricketGame() {
       )}
     </div>
 
-    {/* Mobile Sticky Bottom Ad */}
+    {/* Mobile Sticky Bottom Ad - Persists across all screens */}
     <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-700 p-2 flex justify-center sm:hidden">
       <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
         <script dangerouslySetInnerHTML={{
