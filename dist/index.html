@@ -45,10 +45,37 @@
             }, 30000);
           });
         };
+      } else {
+        // Desktop ads - Load Google Publisher Tags script
+        var gptScript = document.createElement('script');
+        gptScript.async = true;
+        gptScript.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
+        gptScript.crossOrigin = 'anonymous';
+        document.head.appendChild(gptScript);
+        
+        // Initialize desktop ads when script loads
+        gptScript.onload = function() {
+          window.googletag = window.googletag || {cmd: []};
+          googletag.cmd.push(function() {
+            // Define all desktop ad slots
+            googletag.defineSlot('/11446729/Cricket_Arrange_Game_300250_Desktop_01', [300, 250], 'div-gpt-ad-1754030483680-0').addService(googletag.pubads());
+            googletag.defineSlot('/11446729/Cricket_Arrange_Game_300250_Desktop_02', [300, 250], 'div-gpt-ad-1754030700661-0').addService(googletag.pubads());
+            googletag.defineSlot('/11446729/Cricket_Arrange_Game_Desktop_Sticky_97090', [970, 90], 'div-gpt-ad-1754030936119-0').addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+            
+            // Set up 30-second refresh for all ads
+            setInterval(function() {
+              googletag.cmd.push(function() {
+                googletag.pubads().refresh();
+              });
+            }, 30000);
+          });
+        };
       }
     </script>
-    <script type="module" crossorigin src="/assets/index-D8Qpat9W.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Bq9b3GKi.css">
+    <script type="module" crossorigin src="/assets/index-C1dSspi_.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BjNptGgi.css">
   </head>
   <body>
     <div id="root"></div>
