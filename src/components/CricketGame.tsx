@@ -634,7 +634,7 @@ export default function CricketGame() {
                     </div>
                     <div className="text-center p-2 bg-yellow-900/30 rounded-lg border border-yellow-400/30">
                       <div className="text-lg font-bold text-yellow-400">
-                        {gameWon ? '100%' : `${Math.round((positionColors.filter(color => color === 'green').length / 5) * 100)}%`}
+                        {gameWon ? '100%' : gaveUp ? '0%' : `${Math.round((positionColors.filter(color => color === 'green').length / 5) * 100)}%`}
                       </div>
                       <div className="text-xs text-gray-300">Accuracy</div>
                     </div>
