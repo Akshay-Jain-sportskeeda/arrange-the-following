@@ -74,7 +74,7 @@ export default function CricketGame() {
       const removeTimer = setTimeout(() => {
         setShowIntro(false);
         setIntroExiting(false);
-      }, 3000);
+      }, 4500);
       
       return () => {
         clearTimeout(exitTimer);
