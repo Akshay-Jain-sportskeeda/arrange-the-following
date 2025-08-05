@@ -986,7 +986,7 @@ export default function CricketGame() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white lg:pb-28">
       {/* Desktop Layout with Ads */}
       <div className="hidden lg:flex lg:justify-center lg:gap-8 lg:px-4">
         {/* Left Ad */}
