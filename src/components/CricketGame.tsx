@@ -1102,7 +1102,7 @@ export default function CricketGame() {
                     `}
                   >
                     <Send className="w-3 h-3" />
-                    <span className="hidden sm:inline">Submit</span>
+                    Submit
                   </button>
                   
                   <button
@@ -1117,7 +1117,7 @@ export default function CricketGame() {
                     `}
                   >
                     <Flag className="w-3 h-3" />
-                    <span className="hidden sm:inline">Give Up</span>
+                    Give Up
                   </button>
                 </div>
               </div>
