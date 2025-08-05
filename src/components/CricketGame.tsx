@@ -52,6 +52,24 @@ export default function CricketGame() {
   const [availableDates, setAvailableDates] = useState<GameDate[]>([]);
   const [currentDate, setCurrentDate] = useState<string>(new Date().toLocaleDateString('en-US'));
   const [gaveUp, setGaveUp] = useState<boolean>(false);
+  const [showIntro, setShowIntro] = useState<boolean>(false);
+
+  // Check if device is mobile
+  const isMobile = () => {
+    return window.innerWidth < 640 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
+  useEffect(() => {
+    // Show intro animation only on mobile devices
+    if (isMobile()) {
+      setShowIntro(true);
+      const timer = setTimeout(() => {
+        setShowIntro(false);
+      }, 3000); // Show for 3 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const handleGiveUp = () => {
     if (!gameData || gameComplete) return;
@@ -713,6 +731,26 @@ export default function CricketGame() {
 
   return (
     <>
+    {/* Mobile Intro Animation */}
+    {showIntro && (
+      <div className="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 animate-pulse">
+        <div className="text-center">
+          <div className="text-3xl font-bold text-white mb-4 animate-bounce">
+            🏏
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">
+            Arrange the Following
+          </h1>
+          <h2 className="text-xl font-semibold text-blue-400">
+            Game
+          </h2>
+          <div className="mt-6">
+            <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    )}
+    
     {/* Main Game Content */}
     <>
     <div className="min-h-screen bg-gray-900 p-2">
