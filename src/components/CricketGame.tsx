@@ -53,6 +53,7 @@ export default function CricketGame() {
   const [currentDate, setCurrentDate] = useState<string>(new Date().toLocaleDateString('en-US'));
   const [gaveUp, setGaveUp] = useState<boolean>(false);
   const [showIntro, setShowIntro] = useState<boolean>(false);
+  const [introExiting, setIntroExiting] = useState<boolean>(false);
 
   // Check if device is mobile
   const isMobile = () => {
@@ -63,11 +64,22 @@ export default function CricketGame() {
     // Show intro animation only on mobile devices
     if (isMobile()) {
       setShowIntro(true);
-      const timer = setTimeout(() => {
-        setShowIntro(false);
-      }, 3000); // Show for 3 seconds
       
-      return () => clearTimeout(timer);
+      // Start exit animation after 2.5 seconds
+      const exitTimer = setTimeout(() => {
+        setIntroExiting(true);
+      }, 2500);
+      
+      // Remove intro completely after exit animation
+      const removeTimer = setTimeout(() => {
+        setShowIntro(false);
+        setIntroExiting(false);
+      }, 3000);
+      
+      return () => {
+        clearTimeout(exitTimer);
+        clearTimeout(removeTimer);
+      };
     }
   }, []);
 
@@ -735,7 +747,11 @@ export default function CricketGame() {
     {showIntro && (
       <div className="fixed inset-0 bg-gray-900 flex items-center justify-center z-50">
         <div className="text-center">
-          <div className="bg-gray-800 rounded-lg p-8 shadow-lg border border-gray-600 animate-[slideInOut_3s_ease-in-out_forwards]">
+          <div className={`bg-gray-800 rounded-lg p-8 shadow-lg border border-gray-600 transition-all duration-500 ${
+            introExiting 
+              ? 'transform translate-x-full scale-75 opacity-0' 
+              : 'animate-[slideIn_0.5s_ease-out_forwards]'
+          }`}>
             <div className="text-3xl font-bold text-white mb-2">
               🏏
             </div>
