@@ -94,7 +94,7 @@ export default function CricketGame() {
     setArrangedPlayers(correctOrder);
     setAvailablePlayers([]);
     
-    // Mark all as correct (green)
+    // Mark all as correct visually but don't count as user's correct answers
     setPositionColors(new Array(correctOrder.length).fill('green'));
     
     // End the game as a loss
@@ -622,13 +622,13 @@ export default function CricketGame() {
                     </div>
                     <div className="text-center p-2 bg-green-900/30 rounded-lg border border-green-400/30">
                       <div className="text-lg font-bold text-green-400">
-                        {positionColors.filter(color => color === 'green').length}
+                        {gaveUp ? 0 : positionColors.filter(color => color === 'green').length}
                       </div>
                       <div className="text-xs text-gray-300">Correct</div>
                     </div>
                     <div className="text-center p-2 bg-red-900/30 rounded-lg border border-red-400/30">
                       <div className="text-lg font-bold text-red-400">
-                        {positionColors.filter(color => color === 'red').length}
+                        {gaveUp ? 0 : positionColors.filter(color => color === 'red').length}
                       </div>
                       <div className="text-xs text-gray-300">Wrong</div>
                     </div>
