@@ -733,19 +733,15 @@ export default function CricketGame() {
     <>
     {/* Mobile Intro Animation */}
     {showIntro && (
-      <div className="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 animate-pulse">
+      <div className="fixed inset-0 bg-gray-900 flex items-center justify-center z-50">
         <div className="text-center">
-          <div className="text-3xl font-bold text-white mb-4 animate-bounce">
-            🏏
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-2">
-            Arrange the Following
-          </h1>
-          <h2 className="text-xl font-semibold text-blue-400">
-            Game
-          </h2>
-          <div className="mt-6">
-            <div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="bg-gray-800 rounded-lg p-8 shadow-lg border border-gray-600 animate-[slideInOut_3s_ease-in-out_forwards]">
+            <div className="text-3xl font-bold text-white mb-2">
+              🏏
+            </div>
+            <h1 className="text-2xl font-bold text-white">
+              Arrange the Following
+            </h1>
           </div>
         </div>
       </div>
