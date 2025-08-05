@@ -745,11 +745,13 @@ export default function CricketGame() {
     <>
     {/* Mobile Intro Animation */}
     {showIntro && (
-      <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className={`fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-1000 ${
+        introExiting ? 'fade-out-background' : ''
+      }`}>
         <div className="text-center">
           <div className={`bg-gray-800 rounded-lg p-8 shadow-lg border border-gray-600 ${
             introExiting 
-              ? 'transition-all duration-1000 slide-out-right' 
+              ? 'transition-all duration-1000 slide-out-right'
               : 'animate-[slideIn_0.5s_ease-out_forwards]'
           }`}>
             <div className="text-3xl font-bold text-white mb-2">

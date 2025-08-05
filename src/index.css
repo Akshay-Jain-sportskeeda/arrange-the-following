@@ -17,3 +17,8 @@
   opacity: 0;
   transform: scale(0.8);
 }
+
+.fade-out-background {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+}
