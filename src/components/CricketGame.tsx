@@ -957,6 +957,13 @@ export default function CricketGame() {
       ) : (
         // Main Game Screen
         <div className="max-w-2xl mx-auto">
+          {/* Desktop Heading */}
+          <div className="hidden sm:block text-center mb-4">
+            <h1 className="text-2xl font-bold text-white">
+              🏏 Arrange the Following Cricket Game
+            </h1>
+          </div>
+
           {/* Game Complete Messages */}
           {gameComplete && !showResults && (
             <div className="text-center mb-4">
