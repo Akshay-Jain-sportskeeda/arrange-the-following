@@ -1016,7 +1016,7 @@ export default function CricketGame() {
                       target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
                     }}
                   />
-                  <h3 className="font-medium text-white text-xs leading-tight">{player.name}</h3>
+                  <h3 className="font-medium text-white text-xs leading-tight line-clamp-2 sm:line-clamp-none">{player.name}</h3>
                 </div>
               ))}
             </div>
@@ -1041,7 +1041,7 @@ export default function CricketGame() {
                   key={index}
                   onClick={() => handlePositionClick(index)}
                   className={`
-                    p-1.5 rounded-lg border-2 transition-all duration-300 cursor-pointer min-h-[50px] text-center relative
+                    p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-300 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center relative
                     ${getPositionBorderColor(index)}
                     hover:border-blue-400 hover:bg-blue-900/20
                   `}
@@ -1063,7 +1063,7 @@ export default function CricketGame() {
                           e.stopPropagation();
                           handleRemovePlayer(index);
                         }}
-                        className="absolute -top-1 -right-1 w-4 h-4 bg-gray-500 hover:bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-200 z-10"
+                        className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-gray-500 hover:bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-200 z-10"
                         disabled={gameComplete}
                       >
                         ×
@@ -1071,13 +1071,13 @@ export default function CricketGame() {
                       <img
                         src={player.image}
                         alt={player.name}
-                        className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-600 mx-auto mb-0.5 sm:mb-1"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
                         }}
                       />
-                      <h3 className="font-medium text-white text-xs leading-tight">{player.name}</h3>
+                      <h3 className="font-medium text-white text-xs leading-tight line-clamp-2 sm:line-clamp-none">{player.name}</h3>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-gray-500 text-xs">
@@ -1094,7 +1094,7 @@ export default function CricketGame() {
                     onClick={handleSubmit}
                     disabled={!canSubmit || gameComplete}
                     className={`
-                      px-2 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
+                      px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
                       ${canSubmit && !gameComplete
                         ? 'bg-green-600 hover:bg-green-700 text-white transform hover:scale-105'
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
@@ -1102,14 +1102,14 @@ export default function CricketGame() {
                     `}
                   >
                     <Send className="w-3 h-3" />
-                    Submit
+                    <span className="hidden sm:inline">Submit</span>
                   </button>
                   
                   <button
                     onClick={handleGiveUp}
                     disabled={gameComplete}
                     className={`
-                      px-2 py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
+                      px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
                       ${!gameComplete
                         ? 'bg-red-600 hover:bg-red-700 text-white transform hover:scale-105'
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
@@ -1117,7 +1117,7 @@ export default function CricketGame() {
                     `}
                   >
                     <Flag className="w-3 h-3" />
-                    Give Up
+                    <span className="hidden sm:inline">Give Up</span>
                   </button>
                 </div>
               </div>
