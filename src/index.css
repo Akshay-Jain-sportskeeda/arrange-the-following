@@ -12,3 +12,8 @@
     opacity: 1;
   }
 }
+
+.slide-out-right {
+  transform: translateX(100vw) scale(0.75);
+  opacity: 0;
+}
