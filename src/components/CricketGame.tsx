@@ -56,6 +56,8 @@ export default function CricketGame() {
   const [introExiting, setIntroExiting] = useState<boolean>(false);
   const [draggedPlayer, setDraggedPlayer] = useState<Player | null>(null);
   const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
 
   // Check if device is mobile
   const isMobile = () => {
@@ -480,12 +482,21 @@ export default function CricketGame() {
   const handleTouchStart = (e: React.TouchEvent, player: Player) => {
     if (gameComplete || showResults) return;
     
-    setDraggedPlayer(player);
-    trackPlayerSelect(player.name, player.id);
+    const touch = e.touches[0];
+    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+    
+    // Small delay to distinguish between tap and drag
+    setTimeout(() => {
+      if (touchStartPos) {
+        setDraggedPlayer(player);
+        setIsDragging(true);
+        trackPlayerSelect(player.name, player.id);
+      }
+    }, 150);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!draggedPlayer) return;
+    if (!draggedPlayer || !isDragging) return;
     
     e.preventDefault(); // Prevent scrolling while dragging
     
@@ -505,7 +516,7 @@ export default function CricketGame() {
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!draggedPlayer) return;
+    if (!draggedPlayer || !isDragging) return;
     
     const touch = e.changedTouches[0];
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -520,8 +531,21 @@ export default function CricketGame() {
       }
     }
     
+    // Reset all drag states
+    setTimeout(() => {
+      setDraggedPlayer(null);
+      setDragOverPosition(null);
+      setIsDragging(false);
+      setTouchStartPos(null);
+    }, 100);
+  };
+
+  // Handle touch cancel (when user lifts finger outside)
+  const handleTouchCancel = () => {
     setDraggedPlayer(null);
     setDragOverPosition(null);
+    setIsDragging(false);
+    setTouchStartPos(null);
   };
 
   const handlePositionDrop = (positionIndex: number) => {
@@ -974,6 +998,7 @@ export default function CricketGame() {
                   onTouchStart={(e) => handleTouchStart(e, player)}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
+                  onTouchCancel={handleTouchCancel}
                   className={`
                     p-2 rounded-lg border transition-all duration-300 cursor-pointer text-center
                     ${selectedPlayer?.id === player.id 
@@ -981,8 +1006,13 @@ export default function CricketGame() {
                       : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
                     }
                     ${animatingPlayer === player.id ? 'animate-pulse' : ''}
-                    ${draggedPlayer?.id === player.id ? 'opacity-50 transform scale-105' : ''}
+                    ${draggedPlayer?.id === player.id && isDragging ? 'opacity-50 transform scale-105 z-50' : ''}
                   `}
+                  style={{
+                    touchAction: isDragging ? 'none' : 'auto',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none'
+                  }}
                 >
                   <img
                     src={player.image}
@@ -1024,11 +1054,14 @@ export default function CricketGame() {
                   className={`
                     p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-300 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center relative
                     ${dragOverPosition === index 
-                      ? 'border-blue-400 bg-blue-900/30 transform scale-105' 
+                      ? 'border-blue-400 bg-blue-900/30 transform scale-105 shadow-lg' 
                       : getPositionBorderColor(index)
                     }
                     hover:border-blue-400 hover:bg-blue-900/20
                   `}
+                  style={{
+                    touchAction: 'none'
+                  }}
                 >
                   <div className={`absolute top-1 left-1 text-xs font-bold ${
                     positionColors[index] === 'green' 
