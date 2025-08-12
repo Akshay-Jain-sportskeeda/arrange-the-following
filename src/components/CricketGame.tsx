@@ -54,6 +54,8 @@ export default function CricketGame() {
   const [gaveUp, setGaveUp] = useState<boolean>(false);
   const [showIntro, setShowIntro] = useState<boolean>(false);
   const [introExiting, setIntroExiting] = useState<boolean>(false);
+  const [draggedPlayer, setDraggedPlayer] = useState<Player | null>(null);
+  const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
 
   // Check if device is mobile
   const isMobile = () => {
@@ -405,6 +407,157 @@ export default function CricketGame() {
     ));
   };
 
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, player: Player) => {
+    if (gameComplete || showResults) return;
+    
+    setDraggedPlayer(player);
+    e.dataTransfer.effectAllowed = 'move';
+    
+    // For mobile, we'll use touch events instead
+    if (isMobile()) {
+      e.preventDefault();
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent, positionIndex: number) => {
+    if (!draggedPlayer || gameComplete || showResults) return;
+    
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverPosition(positionIndex);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverPosition(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, positionIndex: number) => {
+    e.preventDefault();
+    
+    if (!draggedPlayer || gameComplete || showResults || !gameData) return;
+
+    // Track slot selection for drag and drop
+    trackSlotSelect(positionIndex, draggedPlayer.name);
+
+    // Add animation
+    setAnimatingPlayer(draggedPlayer.id);
+    
+    setTimeout(() => {
+      const newArrangedPlayers = [...arrangedPlayers];
+      
+      // Remove player from any existing position
+      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === draggedPlayer.id);
+      if (existingIndex !== -1) {
+        newArrangedPlayers[existingIndex] = null;
+      }
+
+      // Place player in new position
+      newArrangedPlayers[positionIndex] = draggedPlayer;
+      
+      // Remove player from available players
+      const newAvailablePlayers = availablePlayers.filter(p => p.id !== draggedPlayer.id);
+      
+      // If there was a player in this position, add them back to available players
+      if (arrangedPlayers[positionIndex]) {
+        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
+      }
+      
+      setArrangedPlayers(newArrangedPlayers);
+      setAvailablePlayers(newAvailablePlayers);
+      setDraggedPlayer(null);
+      setDragOverPosition(null);
+      setAnimatingPlayer(null);
+    }, 300);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedPlayer(null);
+    setDragOverPosition(null);
+  };
+
+  // Touch handlers for mobile drag and drop
+  const handleTouchStart = (e: React.TouchEvent, player: Player) => {
+    if (gameComplete || showResults) return;
+    
+    setDraggedPlayer(player);
+    trackPlayerSelect(player.name, player.id);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!draggedPlayer) return;
+    
+    e.preventDefault(); // Prevent scrolling while dragging
+    
+    const touch = e.touches[0];
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    // Find if we're over a position slot
+    const positionSlot = elementBelow?.closest('[data-position-index]');
+    if (positionSlot) {
+      const positionIndex = parseInt(positionSlot.getAttribute('data-position-index') || '-1');
+      if (positionIndex >= 0) {
+        setDragOverPosition(positionIndex);
+      }
+    } else {
+      setDragOverPosition(null);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!draggedPlayer) return;
+    
+    const touch = e.changedTouches[0];
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    // Find if we're over a position slot
+    const positionSlot = elementBelow?.closest('[data-position-index]');
+    if (positionSlot) {
+      const positionIndex = parseInt(positionSlot.getAttribute('data-position-index') || '-1');
+      if (positionIndex >= 0) {
+        // Simulate drop
+        handlePositionDrop(positionIndex);
+      }
+    }
+    
+    setDraggedPlayer(null);
+    setDragOverPosition(null);
+  };
+
+  const handlePositionDrop = (positionIndex: number) => {
+    if (!draggedPlayer || gameComplete || showResults || !gameData) return;
+
+    // Track slot selection
+    trackSlotSelect(positionIndex, draggedPlayer.name);
+
+    // Add animation
+    setAnimatingPlayer(draggedPlayer.id);
+    
+    setTimeout(() => {
+      const newArrangedPlayers = [...arrangedPlayers];
+      
+      // Remove player from any existing position
+      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === draggedPlayer.id);
+      if (existingIndex !== -1) {
+        newArrangedPlayers[existingIndex] = null;
+      }
+
+      // Place player in new position
+      newArrangedPlayers[positionIndex] = draggedPlayer;
+      
+      // Remove player from available players
+      const newAvailablePlayers = availablePlayers.filter(p => p.id !== draggedPlayer.id);
+      
+      // If there was a player in this position, add them back to available players
+      if (arrangedPlayers[positionIndex]) {
+        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
+      }
+      
+      setArrangedPlayers(newArrangedPlayers);
+      setAvailablePlayers(newAvailablePlayers);
+      setAnimatingPlayer(null);
+    }, 300);
+  };
   const handleSubmit = () => {
     if (!canSubmit || !gameData) return;
 
@@ -815,6 +968,12 @@ export default function CricketGame() {
                 <div
                   key={player.id}
                   onClick={() => handlePlayerClick(player)}
+                  draggable={!gameComplete && !showResults}
+                  onDragStart={(e) => handleDragStart(e, player)}
+                  onDragEnd={handleDragEnd}
+                  onTouchStart={(e) => handleTouchStart(e, player)}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   className={`
                     p-2 rounded-lg border transition-all duration-300 cursor-pointer text-center
                     ${selectedPlayer?.id === player.id 
@@ -822,6 +981,7 @@ export default function CricketGame() {
                       : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
                     }
                     ${animatingPlayer === player.id ? 'animate-pulse' : ''}
+                    ${draggedPlayer?.id === player.id ? 'opacity-50 transform scale-105' : ''}
                   `}
                 >
                   <img
@@ -857,9 +1017,16 @@ export default function CricketGame() {
                 <div
                   key={index}
                   onClick={() => handlePositionClick(index)}
+                  data-position-index={index}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, index)}
                   className={`
                     p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-300 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center relative
-                    ${getPositionBorderColor(index)}
+                    ${dragOverPosition === index 
+                      ? 'border-blue-400 bg-blue-900/30 transform scale-105' 
+                      : getPositionBorderColor(index)
+                    }
                     hover:border-blue-400 hover:bg-blue-900/20
                   `}
                 >
