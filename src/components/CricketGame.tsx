@@ -1058,7 +1058,7 @@ export default function CricketGame() {
       {/* Mobile Sticky Ad */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-800 border-t border-gray-700">
         <div className="flex justify-center p-2">
-          <div id='div-gpt-ad-1754030829221-0' style={{minWidth: '250px', minHeight: '50px'}}>
+          <div id='div-gpt-ad-1754030829221-0' style={{maxWidth: '336px', maxHeight: '280px'}}>
             <script dangerouslySetInnerHTML={{
               __html: `
                 if (typeof googletag !== 'undefined') {
