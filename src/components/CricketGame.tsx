@@ -57,7 +57,8 @@ export default function CricketGame() {
   const [draggedPlayer, setDraggedPlayer] = useState<Player | null>(null);
   const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [touchStartPos, setTouchStartPos] = useState<{ x: number; y: number } | null>(null);
+  const [touchStartTime, setTouchStartTime] = useState<number>(0);
+  const [touchMoved, setTouchMoved] = useState<boolean>(false);
 
   // Check if device is mobile
   const isMobile = () => {
@@ -411,19 +412,17 @@ export default function CricketGame() {
 
   // Drag and Drop handlers
   const handleDragStart = (e: React.DragEvent, player: Player) => {
-    if (gameComplete || showResults) return;
+    if (gameComplete || showResults || isMobile()) {
+      e.preventDefault();
+      return;
+    }
     
     setDraggedPlayer(player);
     e.dataTransfer.effectAllowed = 'move';
-    
-    // For mobile, we'll use touch events instead
-    if (isMobile()) {
-      e.preventDefault();
-    }
   };
 
   const handleDragOver = (e: React.DragEvent, positionIndex: number) => {
-    if (!draggedPlayer || gameComplete || showResults) return;
+    if (!draggedPlayer || gameComplete || showResults || isMobile()) return;
     
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
@@ -431,13 +430,14 @@ export default function CricketGame() {
   };
 
   const handleDragLeave = () => {
+    if (isMobile()) return;
     setDragOverPosition(null);
   };
 
   const handleDrop = (e: React.DragEvent, positionIndex: number) => {
     e.preventDefault();
     
-    if (!draggedPlayer || gameComplete || showResults || !gameData) return;
+    if (!draggedPlayer || gameComplete || showResults || !gameData || isMobile()) return;
 
     // Track slot selection for drag and drop
     trackSlotSelect(positionIndex, draggedPlayer.name);
@@ -474,6 +474,7 @@ export default function CricketGame() {
   };
 
   const handleDragEnd = () => {
+    if (isMobile()) return;
     setDraggedPlayer(null);
     setDragOverPosition(null);
   };
@@ -482,23 +483,28 @@ export default function CricketGame() {
   const handleTouchStart = (e: React.TouchEvent, player: Player) => {
     if (gameComplete || showResults) return;
     
-    const touch = e.touches[0];
-    setTouchStartPos({ x: touch.clientX, y: touch.clientY });
+    setTouchStartTime(Date.now());
+    setTouchMoved(false);
+    setDraggedPlayer(player);
     
-    // Small delay to distinguish between tap and drag
-    setTimeout(() => {
-      if (touchStartPos) {
-        setDraggedPlayer(player);
-        setIsDragging(true);
-        trackPlayerSelect(player.name, player.id);
-      }
-    }, 150);
+    // Prevent default to avoid conflicts with click events
+    e.preventDefault();
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!draggedPlayer || !isDragging) return;
+    if (!draggedPlayer || gameComplete || showResults) return;
     
-    e.preventDefault(); // Prevent scrolling while dragging
+    const timeDiff = Date.now() - touchStartTime;
+    
+    // Only start dragging after 100ms and some movement
+    if (timeDiff > 100) {
+      setIsDragging(true);
+      setTouchMoved(true);
+    }
+    
+    if (!isDragging) return;
+    
+    e.preventDefault();
     
     const touch = e.touches[0];
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -516,7 +522,22 @@ export default function CricketGame() {
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!draggedPlayer || !isDragging) return;
+    if (!draggedPlayer) return;
+    
+    const timeDiff = Date.now() - touchStartTime;
+    
+    // If it was a quick tap without much movement, treat as regular click
+    if (timeDiff < 200 && !touchMoved) {
+      setDraggedPlayer(null);
+      setIsDragging(false);
+      // Let the regular click handler take over
+      return;
+    }
+    
+    if (!isDragging) {
+      setDraggedPlayer(null);
+      return;
+    }
     
     const touch = e.changedTouches[0];
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -526,18 +547,15 @@ export default function CricketGame() {
     if (positionSlot) {
       const positionIndex = parseInt(positionSlot.getAttribute('data-position-index') || '-1');
       if (positionIndex >= 0) {
-        // Simulate drop
-        handlePositionDrop(positionIndex);
+        handleMobileDrop(positionIndex);
       }
     }
     
-    // Reset all drag states
-    setTimeout(() => {
-      setDraggedPlayer(null);
-      setDragOverPosition(null);
-      setIsDragging(false);
-      setTouchStartPos(null);
-    }, 100);
+    // Reset drag states
+    setDraggedPlayer(null);
+    setDragOverPosition(null);
+    setIsDragging(false);
+    setTouchMoved(false);
   };
 
   // Handle touch cancel (when user lifts finger outside)
@@ -545,10 +563,10 @@ export default function CricketGame() {
     setDraggedPlayer(null);
     setDragOverPosition(null);
     setIsDragging(false);
-    setTouchStartPos(null);
+    setTouchMoved(false);
   };
 
-  const handlePositionDrop = (positionIndex: number) => {
+  const handleMobileDrop = (positionIndex: number) => {
     if (!draggedPlayer || gameComplete || showResults || !gameData) return;
 
     // Track slot selection
@@ -582,6 +600,7 @@ export default function CricketGame() {
       setAnimatingPlayer(null);
     }, 300);
   };
+
   const handleSubmit = () => {
     if (!canSubmit || !gameData) return;
 
@@ -992,7 +1011,7 @@ export default function CricketGame() {
                 <div
                   key={player.id}
                   onClick={() => handlePlayerClick(player)}
-                  draggable={!gameComplete && !showResults}
+                  draggable={!gameComplete && !showResults && !isMobile()}
                   onDragStart={(e) => handleDragStart(e, player)}
                   onDragEnd={handleDragEnd}
                   onTouchStart={(e) => handleTouchStart(e, player)}
@@ -1006,12 +1025,13 @@ export default function CricketGame() {
                       : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
                     }
                     ${animatingPlayer === player.id ? 'animate-pulse' : ''}
-                    ${draggedPlayer?.id === player.id && isDragging ? 'opacity-50 transform scale-105 z-50' : ''}
+                    ${draggedPlayer?.id === player.id && isDragging ? 'opacity-60 transform scale-110 z-50 shadow-2xl' : ''}
                   `}
                   style={{
-                    touchAction: isDragging ? 'none' : 'auto',
+                    touchAction: 'manipulation',
                     userSelect: 'none',
-                    WebkitUserSelect: 'none'
+                    WebkitUserSelect: 'none',
+                    WebkitTouchCallout: 'none'
                   }}
                 >
                   <img
@@ -1052,15 +1072,15 @@ export default function CricketGame() {
                   onDragLeave={handleDragLeave}
                   onDrop={(e) => handleDrop(e, index)}
                   className={`
-                    p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-300 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center relative
+                    p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-200 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center relative
                     ${dragOverPosition === index 
-                      ? 'border-blue-400 bg-blue-900/30 transform scale-105 shadow-lg' 
+                      ? 'border-blue-400 bg-blue-900/40 transform scale-105 shadow-xl ring-2 ring-blue-400/50' 
                       : getPositionBorderColor(index)
                     }
-                    hover:border-blue-400 hover:bg-blue-900/20
+                    ${!isMobile() ? 'hover:border-blue-400 hover:bg-blue-900/20' : ''}
                   `}
                   style={{
-                    touchAction: 'none'
+                    touchAction: 'manipulation'
                   }}
                 >
                   <div className={`absolute top-1 left-1 text-xs font-bold ${
