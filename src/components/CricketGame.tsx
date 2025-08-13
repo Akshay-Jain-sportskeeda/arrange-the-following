@@ -1097,7 +1097,7 @@ export default function CricketGame() {
             {/* Subtle Tooltip */}
             {showTooltip && selectedPlayer && arrangedPlayers.every(slot => slot === null) && (
               <div className="absolute top-0 left-0 right-0 flex justify-center z-10 pointer-events-none mb-2">
-                <div className="bg-gray-900 bg-opacity-40 text-gray-300 px-3 py-1 rounded text-xs">
+                <div className="bg-orange-600 bg-opacity-40 text-white px-3 py-1 rounded text-xs">
                   Place the player at the right spot
                 </div>
               </div>
