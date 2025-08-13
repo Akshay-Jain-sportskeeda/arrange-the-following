@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, RotateCcw, Calendar, Share2, ExternalLink, Info, AlertCircle, Send, Flag } from 'lucide-react';
+import { Trophy, RotateCcw, Calendar, Share2, ExternalLink, Info, AlertCircle, Send, Flag, X, Gamepad2 } from 'lucide-react';
 import { 
   trackGameBegin, 
   trackGameComplete, 
@@ -353,6 +353,7 @@ export default function CricketGame() {
     setPositionColors([]);
     setCanSubmit(false);
     setGaveUp(false);
+    setShowTooltip(false);
     // Fetch new data
     fetchGameData(selectedDate);
   };
@@ -360,10 +361,18 @@ export default function CricketGame() {
   const handlePlayerClick = (player: Player) => {
     if (gameComplete || showResults) return;
     
-    // Track player selection
-    trackPlayerSelect(player.name, player.id);
-    
-    setSelectedPlayer(player);
+    if (selectedPlayer?.id === player.id) {
+      setSelectedPlayer(null);
+      setShowTooltip(false);
+      trackPlayerSelect(player.name, player.id);
+    } else {
+      setSelectedPlayer(player);
+      // Show tooltip only on first selection and if no players are placed yet
+      if (arrangedPlayers.every(slot => slot === null)) {
+        setShowTooltip(true);
+      }
+      trackPlayerSelect(player.name, player.id);
+    }
   };
 
   const handlePositionClick = (positionIndex: number) => {
@@ -398,6 +407,7 @@ export default function CricketGame() {
       setArrangedPlayers(newArrangedPlayers);
       setAvailablePlayers(newAvailablePlayers);
       setSelectedPlayer(null);
+      setShowTooltip(false); // Hide tooltip after successful placement
       setAnimatingPlayer(null);
     }, 300);
   };
@@ -594,7 +604,7 @@ export default function CricketGame() {
     if (!dragState.draggedPlayer || gameComplete || showResults || !gameData) return;
 
     // Track slot selection
-    trackSlotSelect(positionIndex, dragState.draggedPlayer.name);
+    trackSlotSelect(positionIndex, dragState.dragPlayer.name);
 
     // Add animation
     setAnimatingPlayer(dragState.draggedPlayer.id);
@@ -700,6 +710,7 @@ export default function CricketGame() {
     setPositionColors(new Array(gameData.players.length).fill(''));
     setCanSubmit(false);
     setGaveUp(false);
+    setShowTooltip(false);
   };
 
   const handleShare = async () => {
@@ -1253,39 +1264,12 @@ export default function CricketGame() {
           </div>
         </div>
 
-        {/* Tooltip for first player selection */}
-        {showTooltip && selectedPlayer && battingOrder.every(slot => slot === null) && (
-          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
-            <div className="bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg max-w-sm mx-4 pointer-events-auto animate-pulse">
-              <div className="text-center">
-                <div className="font-semibold text-lg mb-1">Player Selected!</div>
-                <div className="text-sm mb-2">
-                  You selected <span className="font-medium">{selectedPlayer.name}</span>
-                </div>
-                <div className="text-xs opacity-90">
-                  Now click on a slot below to place them in the batting order
-                </div>
-                <div className="flex justify-center mt-2">
-                  <div className="text-2xl animate-bounce">⬇️</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Tooltip for first selection */}
         {showTooltip && selectedPlayer && (
           <div className="relative mb-4">
             <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 mx-auto max-w-sm">
-              <Info className="w-5 h-5 flex-shrink-0" />
-              <div className="text-sm">
-                <div className="font-medium mb-1">Player Selected!</div>
-                <div>Tap any empty position below in the batting order to place {selectedPlayer.name}</div>
-              </div>
-            </div>
-            {/* Arrow pointing down */}
-            <div className="flex justify-center mt-1">
-              <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-600"></div>
+              <Info className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm">Now tap an empty cell below to place this player</span>
             </div>
             <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-600 mx-auto"></div>
           </div>
