@@ -1257,8 +1257,15 @@ export default function CricketGame() {
         {showTooltip && selectedPlayer && (
           <div className="relative mb-4">
             <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 mx-auto max-w-sm">
-              <Info className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm">Now tap an empty cell below to place this player</span>
+              <Info className="w-5 h-5 flex-shrink-0" />
+              <div className="text-sm">
+                <div className="font-medium mb-1">Player Selected!</div>
+                <div>Tap any empty position below in the batting order to place {selectedPlayer.name}</div>
+              </div>
+            </div>
+            {/* Arrow pointing down */}
+            <div className="flex justify-center mt-1">
+              <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-600"></div>
             </div>
             <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-600 mx-auto"></div>
           </div>
