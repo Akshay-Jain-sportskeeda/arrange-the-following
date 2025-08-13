@@ -353,7 +353,6 @@ export default function CricketGame() {
     setPositionColors([]);
     setCanSubmit(false);
     setGaveUp(false);
-    setShowTooltip(false);
     // Fetch new data
     fetchGameData(selectedDate);
   };
@@ -361,18 +360,10 @@ export default function CricketGame() {
   const handlePlayerClick = (player: Player) => {
     if (gameComplete || showResults) return;
     
-    if (selectedPlayer?.id === player.id) {
-      setSelectedPlayer(null);
-      setShowTooltip(false);
-      trackPlayerSelect(player.name, player.id);
-    } else {
-      setSelectedPlayer(player);
-      // Show tooltip only on first selection and if no players are placed yet
-      if (arrangedPlayers.every(slot => slot === null)) {
-        setShowTooltip(true);
-      }
-      trackPlayerSelect(player.name, player.id);
-    }
+    // Track player selection
+    trackPlayerSelect(player.name, player.id);
+    
+    setSelectedPlayer(player);
   };
 
   const handlePositionClick = (positionIndex: number) => {
@@ -407,7 +398,6 @@ export default function CricketGame() {
       setArrangedPlayers(newArrangedPlayers);
       setAvailablePlayers(newAvailablePlayers);
       setSelectedPlayer(null);
-      setShowTooltip(false); // Hide tooltip after successful placement
       setAnimatingPlayer(null);
     }, 300);
   };
@@ -604,7 +594,7 @@ export default function CricketGame() {
     if (!dragState.draggedPlayer || gameComplete || showResults || !gameData) return;
 
     // Track slot selection
-    trackSlotSelect(positionIndex, dragState.dragPlayer.name);
+    trackSlotSelect(positionIndex, dragState.draggedPlayer.name);
 
     // Add animation
     setAnimatingPlayer(dragState.draggedPlayer.id);
@@ -710,7 +700,6 @@ export default function CricketGame() {
     setPositionColors(new Array(gameData.players.length).fill(''));
     setCanSubmit(false);
     setGaveUp(false);
-    setShowTooltip(false);
   };
 
   const handleShare = async () => {
@@ -1264,14 +1253,39 @@ export default function CricketGame() {
           </div>
         </div>
 
+        {/* Tooltip for first player selection */}
+        {showTooltip && selectedPlayer && arrangedPlayers.every(slot => slot === null) && (
+          <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+            <div className="bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg max-w-sm mx-4 pointer-events-auto animate-pulse">
+              <div className="text-center">
+                <div className="font-semibold text-lg mb-1">Player Selected!</div>
+                <div className="text-sm mb-2">
+                  You selected <span className="font-medium">{selectedPlayer.name}</span>
+                </div>
+                <div className="text-xs opacity-90">
+                  Now click on a slot below to place them in the batting order
+                </div>
+                <div className="flex justify-center mt-2">
+                  <div className="text-2xl animate-bounce">⬇️</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tooltip for first selection */}
         {showTooltip && selectedPlayer && (
-          <div className="relative mb-4">
-            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 mx-auto max-w-sm">
-              <Info className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm">Now tap an empty cell below to place this player</span>
+          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
+            <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg max-w-sm mx-4 pointer-events-auto animate-pulse">
+              <div className="text-center">
+                <h3 className="font-bold text-lg mb-2">Player Selected!</h3>
+                <p className="text-sm mb-3">You selected <span className="font-semibold">{selectedPlayer.name}</span></p>
+                <p className="text-xs mb-2">Now click on a position (1-5) below to place them in your batting order:</p>
+                <div className="flex justify-center">
+                  <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-l-transparent border-r-transparent border-t-white animate-bounce"></div>
+                </div>
+              </div>
             </div>
-            <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-600 mx-auto"></div>
           </div>
         )}
 
