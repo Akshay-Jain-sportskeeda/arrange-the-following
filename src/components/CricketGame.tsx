@@ -1275,15 +1275,18 @@ export default function CricketGame() {
 
         {/* Tooltip for first selection */}
         {showTooltip && selectedPlayer && (
-          <div className="fixed inset-0 z-50 pointer-events-none flex items-center justify-center">
-            <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg max-w-sm mx-4 pointer-events-auto animate-pulse">
+          <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none px-4">
+            <div className="bg-blue-600 text-white p-4 rounded-lg shadow-lg max-w-xs w-full mx-auto animate-pulse pointer-events-auto">
               <div className="text-center">
                 <h3 className="font-bold text-lg mb-2">Player Selected!</h3>
-                <p className="text-sm mb-3">You selected <span className="font-semibold">{selectedPlayer.name}</span></p>
-                <p className="text-xs mb-2">Now click on a position (1-5) below to place them in your batting order:</p>
-                <div className="flex justify-center">
-                  <div className="w-0 h-0 border-l-4 border-r-4 border-t-8 border-l-transparent border-r-transparent border-t-white animate-bounce"></div>
+                <p className="text-sm mb-3">
+                  You selected <span className="font-semibold">{selectedPlayer.name}</span>
+                </p>
+                <p className="text-xs mb-2">Now click on a position below to place them:</p>
+                <div className="flex justify-center mb-2">
+                  <div className="text-2xl animate-bounce">⬇️</div>
                 </div>
+                <p className="text-xs opacity-75">Tap any "Click here" slot in Your Answer</p>
               </div>
             </div>
           </div>
