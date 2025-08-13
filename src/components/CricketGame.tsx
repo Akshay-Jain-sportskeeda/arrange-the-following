@@ -40,6 +40,7 @@ export default function CricketGame() {
   const [attempts, setAttempts] = useState<number>(0);
   const [gameComplete, setGameComplete] = useState<boolean>(false);
   const [gameWon, setGameWon] = useState<boolean>(false);
+  const [showTooltip, setShowTooltip] = useState<boolean>(false);
   const [arrangedPlayers, setArrangedPlayers] = useState<(Player | null)[]>([null, null, null, null, null]);
   const [positionColors, setPositionColors] = useState<string[]>(['', '', '', '', '']);
   const [loading, setLoading] = useState<boolean>(true);
