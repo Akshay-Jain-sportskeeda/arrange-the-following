@@ -1082,7 +1082,7 @@ export default function CricketGame() {
           </div>
 
           {/* Arrangement Area */}
-          <div className="bg-gray-800 rounded-lg p-3 mb-3">
+          <div className="bg-gray-800 rounded-lg p-3 mb-3 relative">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-sm font-bold text-white">
                 Your Answer
@@ -1093,6 +1093,15 @@ export default function CricketGame() {
                 <span className="text-sm font-bold text-orange-400">{attempts}/5</span>
               </div>
             </div>
+            
+            {/* Subtle Tooltip */}
+            {showTooltip && selectedPlayer && arrangedPlayers.every(slot => slot === null) && (
+              <div className="absolute top-0 left-0 right-0 flex justify-center z-10 pointer-events-none mb-2">
+                <div className="bg-gray-900 bg-opacity-40 text-gray-300 px-3 py-1 rounded text-xs">
+                  Place the player at the right spot
+                </div>
+              </div>
+            )}
             
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {arrangedPlayers.map((player, index) => (
