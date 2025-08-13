@@ -1,564 +1,1332 @@
 import React, { useState, useEffect } from 'react';
+import { Trophy, RotateCcw, Calendar, Share2, ExternalLink, Info, AlertCircle } from 'lucide-react';
 import { 
-  Calendar, 
-  Trophy, 
-  RotateCcw, 
-  Share2, 
-  ChevronLeft, 
-  ChevronRight, 
-  X, 
-  Info,
-  AlertCircle 
-} from 'lucide-react';
-import { trackEvent, trackGameBegin, trackGameComplete, trackSubmit, trackGiveUp, trackPlayerSelect, trackSlotSelect, trackPlayerRemove, trackPlayAgain, trackPlayPrevious, trackShare, trackMiniGameClick } from '../utils/analytics';
+  trackGameBegin, 
+  trackGameComplete, 
+  trackSubmit, 
+  trackGiveUp, 
+  trackPlayerSelect, 
+  trackSlotSelect, 
+  trackPlayerRemove, 
+  trackPlayAgain, 
+  trackPlayPrevious, 
+  trackShare, 
+  trackMiniGameClick 
+} from '../utils/analytics';
 
 interface Player {
   id: number;
   name: string;
   image: string;
+  stats: string;
+  correctPosition: number;
 }
 
 interface GameData {
   date: string;
+  order: string;
+  question: string;
   players: Player[];
-  correctOrder: number[];
-  title: string;
 }
 
-const CricketGame: React.FC = () => {
-  // Game state
-  const [currentGame, setCurrentGame] = useState<GameData | null>(null);
+interface GameDate {
+  date: string;
+  question: string;
+}
+
+export default function CricketGame() {
+  const [gameData, setGameData] = useState<GameData | null>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-  const [battingOrder, setBattingOrder] = useState<(Player | null)[]>(Array(11).fill(null));
-  const [gameCompleted, setGameCompleted] = useState(false);
-  const [gameWon, setGameWon] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-  const [feedback, setFeedback] = useState<('correct' | 'incorrect' | 'empty')[]>(Array(11).fill('empty'));
-  const [showResults, setShowResults] = useState(false);
-  const [gaveUp, setGaveUp] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
+  const [attempts, setAttempts] = useState<number>(0);
+  const [gameComplete, setGameComplete] = useState<boolean>(false);
+  const [gameWon, setGameWon] = useState<boolean>(false);
+  const [showTooltip, setShowTooltip] = useState<boolean>(false);
+  const [arrangedPlayers, setArrangedPlayers] = useState<(Player | null)[]>([null, null, null, null, null]);
+  const [positionColors, setPositionColors] = useState<string[]>(['', '', '', '', '']);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showResults, setShowResults] = useState<boolean>(false);
+  const [availablePlayers, setAvailablePlayers] = useState<Player[]>([]);
+  const [animatingPlayer, setAnimatingPlayer] = useState<number | null>(null);
+  const [canSubmit, setCanSubmit] = useState<boolean>(false);
+  const [showGameSelector, setShowGameSelector] = useState<boolean>(false);
+  const [availableDates, setAvailableDates] = useState<GameDate[]>([]);
+  const [currentDate, setCurrentDate] = useState<string>(new Date().toLocaleDateString('en-US'));
+  const [gaveUp, setGaveUp] = useState<boolean>(false);
+  const [showIntro, setShowIntro] = useState<boolean>(false);
+  const [introExiting, setIntroExiting] = useState<boolean>(false);
+  const [draggedPlayer, setDraggedPlayer] = useState<Player | null>(null);
+  const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [touchStartTime, setTouchStartTime] = useState<number>(0);
+  const [touchMoved, setTouchMoved] = useState<boolean>(false);
+  const [dragState, setDragState] = useState<{
+    isDragging: boolean;
+    draggedPlayer: Player | null;
+    startTime: number;
+    startPos: { x: number; y: number } | null;
+  }>({
+    isDragging: false,
+    draggedPlayer: null,
+    startTime: 0,
+    startPos: null
+  });
 
-  // UI state
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showMiniGames, setShowMiniGames] = useState(false);
+  // Check if device is mobile
+  const isMobile = () => {
+    return window.innerWidth < 640 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
 
-  // Game data
-  const gameData: GameData[] = [
-    {
-      date: '2025-01-13',
-      title: 'India vs Australia - 1st Test, Adelaide 2024',
-      players: [
-        { id: 1, name: 'Yashasvi Jaiswal', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 2, name: 'KL Rahul', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 3, name: 'Shubman Gill', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 4, name: 'Virat Kohli', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 5, name: 'Rishabh Pant', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 6, name: 'Rohit Sharma', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 7, name: 'Ravindra Jadeja', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 8, name: 'R Ashwin', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 9, name: 'Akash Deep', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 10, name: 'Jasprit Bumrah', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 11, name: 'Mohammed Siraj', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' }
-      ],
-      correctOrder: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    },
-    {
-      date: '2025-01-12',
-      title: 'England vs South Africa - 2nd ODI, Cape Town 2024',
-      players: [
-        { id: 1, name: 'Jason Roy', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 2, name: 'Jonny Bairstow', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 3, name: 'Joe Root', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 4, name: 'Ben Stokes', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 5, name: 'Jos Buttler', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 6, name: 'Liam Livingstone', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 7, name: 'Moeen Ali', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 8, name: 'Chris Woakes', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 9, name: 'Adil Rashid', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 10, name: 'Mark Wood', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' },
-        { id: 11, name: 'Jofra Archer', image: 'https://images.pexels.com/photos/1618200/pexels-photo-1618200.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop' }
-      ],
-      correctOrder: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    }
-  ];
-
-  const miniGames = [
-    { name: 'Cricket Quiz', url: 'https://example.com/cricket-quiz', color: 'bg-blue-600' },
-    { name: 'Player Stats', url: 'https://example.com/player-stats', color: 'bg-green-600' },
-    { name: 'Match Predictor', url: 'https://example.com/match-predictor', color: 'bg-purple-600' },
-    { name: 'Fantasy Cricket', url: 'https://example.com/fantasy-cricket', color: 'bg-red-600' }
-  ];
-
-  // Initialize game
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const todayGame = gameData.find(game => game.date === today);
-    const gameToLoad = todayGame || gameData[0];
-    
-    setCurrentGame(gameToLoad);
-    trackGameBegin();
+    // Show intro animation only on mobile devices
+    if (isMobile()) {
+      setShowIntro(true);
+      
+      // Start exit animation after 2.5 seconds
+      const exitTimer = setTimeout(() => {
+        setIntroExiting(true);
+      }, 2500);
+      
+      // Remove intro completely after exit animation
+      const removeTimer = setTimeout(() => {
+        setShowIntro(false);
+        setIntroExiting(false);
+      }, 3000);
+      
+      return () => {
+        clearTimeout(exitTimer);
+        clearTimeout(removeTimer);
+      };
+    }
   }, []);
 
-  const handlePlayerSelect = (player: Player) => {
-    if (gameCompleted) return;
+  const handleGiveUp = () => {
+    if (!gameData || gameComplete) return;
     
-    setSelectedPlayer(player);
-    trackPlayerSelect(player.name, player.id);
+    // Track give up event
+    trackGiveUp(attempts);
     
-    // Show tooltip on first selection
-    if (!showTooltip && battingOrder.every(slot => slot === null)) {
-      setShowTooltip(true);
+    // Set all positions to correct answers
+    const correctOrder = [...gameData.players].sort((a, b) => a.correctPosition - b.correctPosition);
+    setArrangedPlayers(correctOrder);
+    setAvailablePlayers([]);
+    
+    // Mark all as correct visually but don't count as user's correct answers
+    setPositionColors(new Array(correctOrder.length).fill('green'));
+    
+    // End the game as a loss
+    setAttempts(5); // Set to max attempts
+    setGameComplete(true);
+    setGameWon(false);
+    setGaveUp(true);
+    
+    // Track game completion (gave up)
+    trackGameComplete(false, 5, true);
+    
+    setTimeout(() => setShowResults(true), 2000);
+  };
+  useEffect(() => {
+    fetchGameData();
+  }, []);
+
+  useEffect(() => {
+    // Track game begin when game data is loaded for the first time
+    if (gameData && attempts === 0 && !gameComplete) {
+      trackGameBegin();
+    }
+  }, [gameData]);
+
+  useEffect(() => {
+    if (gameData) {
+      setAvailablePlayers([...gameData.players]);
+    }
+  }, [gameData]);
+
+  useEffect(() => {
+    // Check if all positions are filled
+    const allFilled = arrangedPlayers.every(p => p !== null);
+    setCanSubmit(allFilled);
+  }, [arrangedPlayers]);
+
+  const fetchGameData = async (targetDate?: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Try to fetch from Google Sheets first
+      try {
+        const sheetId = '1H_VnLMaJMqVh6948t-lK6EUd01sQ8JsElhG7beNiaPQ';
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+        
+        const response = await fetch(csvUrl, {
+          method: 'GET',
+          mode: 'cors',
+          headers: {
+            'Accept': 'text/csv,text/plain,*/*'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const csvText = await response.text();
+        
+        if (!csvText || csvText.trim().length === 0) {
+          throw new Error('Empty response from Google Sheets');
+        }
+        
+        const rows = csvText.split('\n').map(row => row.split(',').map(cell => cell.replace(/"/g, '').trim()));
+        
+        if (rows.length < 2) {
+          throw new Error('Insufficient data in the spreadsheet');
+        }
+        
+        // Extract all available dates for the game selector
+        const dates: GameDate[] = [];
+        rows.slice(1).forEach(row => {
+          if (row[0] && row[2] && row[0] !== currentDate) { // date and question exist, exclude current date
+            const rowDate = new Date(row[0]);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to compare only dates
+            
+            // Only include dates that are in the past
+            if (rowDate < today) {
+              dates.push({
+                date: row[0],
+                question: row[2]
+              });
+            }
+          }
+        });
+        // Sort dates in descending order and take only the 5 most recent past dates
+        const sortedDates = dates.sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return dateB.getTime() - dateA.getTime();
+        }).slice(0, 5);
+        setAvailableDates(sortedDates);
+        
+        // Find the row with today's date (skip header row)
+        const dateToFind = targetDate || currentDate;
+        let dataRow = rows.slice(1).find(row => row[0] === dateToFind);
+        
+        // If today's data is not found, use the most recent available date
+        if (!dataRow) {
+          const allAvailableDates = rows.slice(1)
+            .filter(row => row[0] && row[2]) // has date and question
+            .sort((a, b) => {
+              const dateA = new Date(a[0]);
+              const dateB = new Date(b[0]);
+              return dateB.getTime() - dateA.getTime();
+            });
+          
+          if (allAvailableDates.length > 0) {
+            dataRow = allAvailableDates[0];
+            // Update currentDate to reflect the actual date being used
+            if (!targetDate) {
+              setCurrentDate(dataRow[0]);
+            }
+          } else {
+            throw new Error(`No game data found in the spreadsheet`);
+          }
+        } else if (targetDate) {
+          // Update currentDate when a specific date was selected and found
+          setCurrentDate(targetDate);
+        }
+        
+        if (dataRow.length < 18) {
+          throw new Error('Incomplete data in the spreadsheet');
+        }
+        
+        const players: Player[] = [];
+        
+        // Extract player data (5 players, 3 columns each: name, stats, image)
+        for (let i = 0; i < 5; i++) {
+          const nameIndex = 3 + (i * 3);
+          const statsIndex = 4 + (i * 3);
+          const imageIndex = 5 + (i * 3);
+          
+          if (dataRow[nameIndex] && dataRow[statsIndex] && dataRow[imageIndex]) {
+            players.push({
+              id: i + 1,
+              name: dataRow[nameIndex],
+              stats: dataRow[statsIndex],
+              image: dataRow[imageIndex],
+              correctPosition: i + 1
+            });
+          }
+        }
+        
+        if (players.length === 0) {
+          throw new Error('No valid player data found');
+        }
+        
+        const gameData: GameData = {
+          date: dataRow[0] || new Date().toLocaleDateString(),
+          order: dataRow[1] || 'ascending',
+          question: dataRow[2] || 'Arrange the players',
+          players: players
+        };
+        
+        // Shuffle players for the game
+        const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+        gameData.players = shuffledPlayers;
+        
+        setGameData(gameData);
+        setArrangedPlayers(new Array(players.length).fill(null));
+        setPositionColors(new Array(players.length).fill(''));
+        
+      } catch (sheetsError) {
+        console.warn('Google Sheets fetch failed:', sheetsError);
+        throw sheetsError; // Re-throw to trigger fallback
+      }
+      
+    } catch (err) {
+      console.warn('Using fallback data due to error:', err);
+      setError('Using demo data - Google Sheets unavailable');
+      
+      // Fallback data
+      const fallbackData: GameData = {
+        date: new Date().toLocaleDateString(),
+        order: 'ascending',
+        question: 'Arrange by ODI Runs (Highest to Lowest)',
+        players: [
+          {
+            id: 1,
+            name: "Virat Kohli",
+            image: "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+            correctPosition: 1,
+            stats: "12,898 runs"
+          },
+          {
+            id: 2,
+            name: "Rohit Sharma",
+            image: "https://images.pexels.com/photos/1263349/pexels-photo-1263349.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+            correctPosition: 2,
+            stats: "10,709 runs"
+          },
+          {
+            id: 3,
+            name: "MS Dhoni",
+            image: "https://images.pexels.com/photos/1263348/pexels-photo-1263348.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+            correctPosition: 3,
+            stats: "10,773 runs"
+          },
+          {
+            id: 4,
+            name: "Shikhar Dhawan",
+            image: "https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+            correctPosition: 4,
+            stats: "6,793 runs"
+          },
+          {
+            id: 5,
+            name: "KL Rahul",
+            image: "https://images.pexels.com/photos/1263347/pexels-photo-1263347.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
+            correctPosition: 5,
+            stats: "2,962 runs"
+          }
+        ]
+      };
+      
+      setGameData(fallbackData);
+      setArrangedPlayers(new Array(fallbackData.players.length).fill(null));
+      setPositionColors(new Array(fallbackData.players.length).fill(''));
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSlotSelect = (index: number) => {
-    if (gameCompleted || !selectedPlayer) return;
-
-    const newBattingOrder = [...battingOrder];
+  const handleDateSelect = (selectedDate: string) => {
+    // Track previous game selection
+    trackPlayPrevious(selectedDate);
     
-    // Remove player from current position if already placed
-    const currentIndex = newBattingOrder.findIndex(p => p?.id === selectedPlayer.id);
-    if (currentIndex !== -1) {
-      newBattingOrder[currentIndex] = null;
-      trackPlayerRemove(selectedPlayer.name, currentIndex);
-    }
-    
-    // Place player in new position
-    newBattingOrder[index] = selectedPlayer;
-    setBattingOrder(newBattingOrder);
-    trackSlotSelect(index, selectedPlayer.name);
-    
+    setShowGameSelector(false);
+    // Reset game state
     setSelectedPlayer(null);
+    setAttempts(0);
+    setGameComplete(false);
+    setGameWon(false);
+    setShowResults(false);
+    setArrangedPlayers([]);
+    setPositionColors([]);
+    setCanSubmit(false);
+    setGaveUp(false);
+    // Fetch new data
+    fetchGameData(selectedDate);
+  };
+
+  const handlePlayerClick = (player: Player) => {
+    if (gameComplete || showResults) return;
     
-    // Hide tooltip after first placement
-    if (showTooltip) {
-      setShowTooltip(false);
+    // Track player selection
+    trackPlayerSelect(player.name, player.id);
+    
+    setSelectedPlayer(player);
+  };
+
+  const handlePositionClick = (positionIndex: number) => {
+    if (!selectedPlayer || gameComplete || showResults || !gameData) return;
+
+    // Track slot selection
+    trackSlotSelect(positionIndex, selectedPlayer.name);
+
+    // Add animation
+    setAnimatingPlayer(selectedPlayer.id);
+    
+    setTimeout(() => {
+      const newArrangedPlayers = [...arrangedPlayers];
+      
+      // Remove player from any existing position
+      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === selectedPlayer.id);
+      if (existingIndex !== -1) {
+        newArrangedPlayers[existingIndex] = null;
+      }
+
+      // Place player in new position
+      newArrangedPlayers[positionIndex] = selectedPlayer;
+      
+      // Remove player from available players
+      const newAvailablePlayers = availablePlayers.filter(p => p.id !== selectedPlayer.id);
+      
+      // If there was a player in this position, add them back to available players
+      if (arrangedPlayers[positionIndex]) {
+        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
+      }
+      
+      setArrangedPlayers(newArrangedPlayers);
+      setAvailablePlayers(newAvailablePlayers);
+      setSelectedPlayer(null);
+      setAnimatingPlayer(null);
+    }, 300);
+  };
+
+  const handleRemovePlayer = (positionIndex: number) => {
+    if (gameComplete || showResults || !arrangedPlayers[positionIndex]) return;
+
+    const playerToRemove = arrangedPlayers[positionIndex]!;
+    
+    // Track player removal
+    trackPlayerRemove(playerToRemove.name, positionIndex);
+    
+    const newArrangedPlayers = [...arrangedPlayers];
+    newArrangedPlayers[positionIndex] = null;
+    
+    const newAvailablePlayers = [...availablePlayers, playerToRemove];
+    
+    setArrangedPlayers(newArrangedPlayers);
+    setAvailablePlayers(newAvailablePlayers);
+    setPositionColors(newArrangedPlayers.map((p, idx) => 
+      positionColors[idx] === 'green' && p ? 'green' : ''
+    ));
+  };
+
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, player: Player) => {
+    if (gameComplete || showResults || isMobile()) {
+      e.preventDefault();
+      return;
     }
+    
+    setDraggedPlayer(player);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, positionIndex: number) => {
+    if (!draggedPlayer || gameComplete || showResults || isMobile()) return;
+    
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverPosition(positionIndex);
+  };
+
+  const handleDragLeave = () => {
+    if (isMobile()) return;
+    setDragOverPosition(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, positionIndex: number) => {
+    e.preventDefault();
+    
+    if (!draggedPlayer || gameComplete || showResults || !gameData || isMobile()) return;
+
+    // Track slot selection for drag and drop
+    trackSlotSelect(positionIndex, draggedPlayer.name);
+
+    // Add animation
+    setAnimatingPlayer(draggedPlayer.id);
+    
+    setTimeout(() => {
+      const newArrangedPlayers = [...arrangedPlayers];
+      
+      // Remove player from any existing position
+      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === draggedPlayer.id);
+      if (existingIndex !== -1) {
+        newArrangedPlayers[existingIndex] = null;
+      }
+
+      // Place player in new position
+      newArrangedPlayers[positionIndex] = draggedPlayer;
+      
+      // Remove player from available players
+      const newAvailablePlayers = availablePlayers.filter(p => p.id !== draggedPlayer.id);
+      
+      // If there was a player in this position, add them back to available players
+      if (arrangedPlayers[positionIndex]) {
+        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
+      }
+      
+      setArrangedPlayers(newArrangedPlayers);
+      setAvailablePlayers(newAvailablePlayers);
+      setDraggedPlayer(null);
+      setDragOverPosition(null);
+      setAnimatingPlayer(null);
+    }, 300);
+  };
+
+  const handleDragEnd = () => {
+    if (isMobile()) return;
+    setDraggedPlayer(null);
+    setDragOverPosition(null);
+  };
+
+  // Touch handlers for mobile drag and drop
+  const handleTouchStart = (e: React.TouchEvent, player: Player) => {
+    if (gameComplete || showResults) return;
+    
+    const touch = e.touches[0];
+    setDragState({
+      isDragging: false,
+      draggedPlayer: player,
+      startTime: Date.now(),
+      startPos: { x: touch.clientX, y: touch.clientY }
+    });
+    
+    // Prevent default to avoid conflicts with click events
+    e.preventDefault();
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.preventDefault(); // Prevent scrolling
+    
+    if (!dragState.draggedPlayer || !dragState.startPos) return;
+    
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.clientX - dragState.startPos.x);
+    const deltaY = Math.abs(touch.clientY - dragState.startPos.y);
+    const timeDiff = Date.now() - dragState.startTime;
+    
+    // Start dragging if moved enough or held long enough
+    if ((deltaX > 10 || deltaY > 10 || timeDiff > 150) && !dragState.isDragging) {
+      setDragState(prev => ({ ...prev, isDragging: true }));
+    }
+    
+    if (!dragState.isDragging) return;
+    
+    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+    
+    // Find if we're over a position slot
+    const positionSlot = elementBelow?.closest('[data-position-index]');
+    if (positionSlot) {
+      const positionIndex = parseInt(positionSlot.getAttribute('data-position-index') || '-1');
+      if (positionIndex >= 0) {
+        setDragOverPosition(positionIndex);
+      }
+    } else {
+      setDragOverPosition(null);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!dragState.draggedPlayer) return;
+    
+    const timeDiff = Date.now() - dragState.startTime;
+    
+    // If it was a quick tap (not a drag), use regular selection
+    if (!dragState.isDragging && timeDiff < 200) {
+      handlePlayerClick(dragState.draggedPlayer);
+      setDragState({
+        isDragging: false,
+        draggedPlayer: null,
+        startTime: 0,
+        startPos: null
+      });
+      return;
+    }
+    
+    // Handle drop for drag operation
+    if (dragState.isDragging) {
+      const touch = e.changedTouches[0];
+      const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+      const positionSlot = elementBelow?.closest('[data-position-index]');
+      
+      if (positionSlot) {
+        const positionIndex = parseInt(positionSlot.getAttribute('data-position-index') || '-1');
+        if (positionIndex >= 0) {
+          handleMobileDrop(positionIndex);
+        }
+      }
+    }
+    
+    // Reset drag state
+    setDragState({
+      isDragging: false,
+      draggedPlayer: null,
+      startTime: 0,
+      startPos: null
+    });
+    setDragOverPosition(null);
+  };
+
+  // Handle touch cancel (when user lifts finger outside)
+  const handleTouchCancel = () => {
+    setDragState({
+      isDragging: false,
+      draggedPlayer: null,
+      startTime: 0,
+      startPos: null
+    });
+    setDragOverPosition(null);
+  };
+
+  const handleMobileDrop = (positionIndex: number) => {
+    if (!dragState.draggedPlayer || gameComplete || showResults || !gameData) return;
+
+    // Track slot selection
+    trackSlotSelect(positionIndex, dragState.draggedPlayer.name);
+
+    // Add animation
+    setAnimatingPlayer(dragState.draggedPlayer.id);
+    
+    setTimeout(() => {
+      const newArrangedPlayers = [...arrangedPlayers];
+      
+      // Remove player from any existing position
+      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === dragState.draggedPlayer!.id);
+      if (existingIndex !== -1) {
+        newArrangedPlayers[existingIndex] = null;
+      }
+
+      // Place player in new position
+      newArrangedPlayers[positionIndex] = dragState.draggedPlayer!;
+      
+      // Remove player from available players
+      const newAvailablePlayers = availablePlayers.filter(p => p.id !== dragState.draggedPlayer!.id);
+      
+      // If there was a player in this position, add them back to available players
+      if (arrangedPlayers[positionIndex]) {
+        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
+      }
+      
+      setArrangedPlayers(newArrangedPlayers);
+      setAvailablePlayers(newAvailablePlayers);
+      setAnimatingPlayer(null);
+    }, 300);
   };
 
   const handleSubmit = () => {
-    if (!currentGame || gameCompleted) return;
+    if (!canSubmit || !gameData) return;
 
-    const newAttempts = attempts + 1;
-    setAttempts(newAttempts);
-
-    const newFeedback = battingOrder.map((player, index) => {
-      if (!player) return 'empty';
-      return currentGame.correctOrder[index] === player.id ? 'correct' : 'incorrect';
+    const newPositionColors = arrangedPlayers.map((player, index) => {
+      if (player && player.correctPosition === index + 1) {
+        return 'green';
+      }
+      return 'red';
     });
 
-    setFeedback(newFeedback);
-    
-    const allCorrect = newFeedback.every(f => f === 'correct');
-    trackSubmit(newAttempts, allCorrect);
+    // Check if all positions are correct
+    const allCorrect = arrangedPlayers.every((player, index) => 
+      player?.correctPosition === index + 1
+    );
+
+    // Track submit event
+    trackSubmit(attempts + 1, allCorrect);
+
+    setPositionColors(newPositionColors);
+    setAttempts(prev => prev + 1);
 
     if (allCorrect) {
       setGameWon(true);
-      setGameCompleted(true);
-      setShowResults(true);
-      trackGameComplete(true, newAttempts, false);
-    } else if (newAttempts >= 6) {
-      setGameCompleted(true);
-      setShowResults(true);
-      trackGameComplete(false, newAttempts, false);
-    }
-  };
-
-  const handleGiveUp = () => {
-    if (gameCompleted) return;
-    
-    setGaveUp(true);
-    setGameCompleted(true);
-    setShowResults(true);
-    trackGiveUp(attempts);
-    trackGameComplete(false, attempts, true);
-
-    // Show correct order
-    if (currentGame) {
-      const correctBattingOrder = currentGame.correctOrder.map(playerId => 
-        currentGame.players.find(p => p.id === playerId) || null
-      );
-      setBattingOrder(correctBattingOrder);
+      setGameComplete(true);
       
-      const correctFeedback = Array(11).fill('correct');
-      setFeedback(correctFeedback);
+      // Track game completion
+      trackGameComplete(true, attempts + 1, false);
+      
+      setTimeout(() => setShowResults(true), 2000);
+    } else if (attempts + 1 >= 5) {
+      setGameComplete(true);
+      
+      // Track game completion (loss)
+      trackGameComplete(false, attempts + 1, false);
+      
+      setTimeout(() => setShowResults(true), 2000);
+    } else {
+      // Move incorrect players back to queue after showing colors
+      setTimeout(() => {
+        const correctPlayers = arrangedPlayers.map((player, index) => {
+          if (player && player.correctPosition === index + 1) {
+            return player; // Keep correct players
+          }
+          return null; // Remove incorrect players
+        });
+
+        const incorrectPlayers = arrangedPlayers.filter((player, index) => {
+          return player && player.correctPosition !== index + 1;
+        });
+
+        setArrangedPlayers(correctPlayers);
+        setAvailablePlayers([...availablePlayers, ...incorrectPlayers]);
+        setPositionColors(correctPlayers.map(p => p ? 'green' : ''));
+      }, 2000);
     }
   };
 
-  const handlePlayAgain = () => {
-    setBattingOrder(Array(11).fill(null));
-    setSelectedPlayer(null);
-    setGameCompleted(false);
-    setGameWon(false);
-    setAttempts(0);
-    setFeedback(Array(11).fill('empty'));
-    setShowResults(false);
-    setGaveUp(false);
-    setShowTooltip(false);
+  const resetGame = () => {
+    if (!gameData) return;
+    
+    // Track play again
     trackPlayAgain();
-    trackGameBegin();
+    
+    const shuffled = [...gameData.players].sort(() => Math.random() - 0.5);
+    setGameData({ ...gameData, players: shuffled });
+    setAvailablePlayers([...shuffled]);
+    setSelectedPlayer(null);
+    setAttempts(0);
+    setGameComplete(false);
+    setGameWon(false);
+    setShowResults(false);
+    setArrangedPlayers(new Array(gameData.players.length).fill(null));
+    setPositionColors(new Array(gameData.players.length).fill(''));
+    setCanSubmit(false);
+    setGaveUp(false);
   };
 
-  const handleDateSelect = (date: string) => {
-    const selectedGame = gameData.find(game => game.date === date);
-    if (selectedGame) {
-      setCurrentGame(selectedGame);
-      setBattingOrder(Array(11).fill(null));
-      setSelectedPlayer(null);
-      setGameCompleted(false);
-      setGameWon(false);
-      setAttempts(0);
-      setFeedback(Array(11).fill('empty'));
-      setShowResults(false);
-      setGaveUp(false);
-      setShowTooltip(false);
-      setShowDatePicker(false);
-      trackPlayPrevious(date);
-      trackGameBegin();
-    }
-  };
-
-  const handleShare = () => {
-    const result = gameWon ? `🏏 Cricket Arrange Game ✅\n\nSolved in ${attempts}/6 attempts!` : 
-                   gaveUp ? `🏏 Cricket Arrange Game ❌\n\nGave up after ${attempts} attempts` :
-                   `🏏 Cricket Arrange Game ❌\n\nFailed in 6/6 attempts`;
+  const handleShare = async () => {
+    // Track share event
+    trackShare(gameWon, attempts);
+    
+    const shareText = gameWon 
+      ? `🏏 I just completed the Cricket Arrange Game in ${attempts} attempts! Can you beat my score? 🎯`
+      : `🏏 Just played the Cricket Arrange Game! Think you can do better? Give it a try! 🎯`;
+    
+    const shareUrl = window.location.href;
     
     if (navigator.share) {
-      navigator.share({
-        title: 'Cricket Arrange Game',
-        text: result,
-        url: window.location.href
-      });
+      try {
+        await navigator.share({
+          title: 'Cricket Arrange Game',
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        // Fallback to clipboard
+        fallbackShare(shareText, shareUrl);
+      }
     } else {
-      navigator.clipboard.writeText(result + `\n\n${window.location.href}`);
+      fallbackShare(shareText, shareUrl);
     }
-    
-    trackShare(gameWon, attempts);
   };
 
-  const handleMiniGameClick = (game: any) => {
-    trackMiniGameClick(game.name, game.url);
-    window.open(game.url, '_blank');
+  const fallbackShare = (text: string, url: string) => {
+    const fullText = `${text}\n\n${url}`;
+    navigator.clipboard.writeText(fullText).then(() => {
+      // You could add a toast notification here
+      alert('Link copied to clipboard!');
+    }).catch(() => {
+      // Final fallback - open share dialog or just show the text
+      alert(`Share this: ${fullText}`);
+    });
+  };
+  const getPositionBorderColor = (index: number) => {
+    const color = positionColors[index];
+    if (color === 'green') return 'border-green-400 bg-green-900/20';
+    if (color === 'red') return 'border-red-400 bg-red-900/20';
+    return selectedPlayer ? 'border-blue-400 bg-blue-900/20' : 'border-gray-600';
   };
 
-  const getAvailablePlayers = () => {
-    if (!currentGame) return [];
-    return currentGame.players.filter(player => 
-      !battingOrder.some(p => p?.id === player.id)
-    );
-  };
-
-  const canSubmit = () => {
-    return battingOrder.every(player => player !== null) && !gameCompleted;
-  };
-
-  const renderDatePicker = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-white">Select Date</h3>
-          <button
-            onClick={() => setShowDatePicker(false)}
-            className="text-gray-400 hover:text-white"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        <div className="space-y-2">
-          {gameData.map(game => (
-            <button
-              key={game.date}
-              onClick={() => handleDateSelect(game.date)}
-              className={`w-full text-left p-3 rounded border transition-colors ${
-                currentGame?.date === game.date
-                  ? 'border-blue-400 bg-blue-900/30 text-blue-400'
-                  : 'border-gray-600 hover:border-gray-500 text-white hover:bg-gray-700/50'
-              }`}
-            >
-              <div className="font-medium">{game.date}</div>
-              <div className="text-sm text-gray-400 line-clamp-2">{game.title}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderMiniGames = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 p-6 rounded-lg max-w-md w-full mx-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold text-white">More Games</h3>
-          <button
-            onClick={() => setShowMiniGames(false)}
-            className="text-gray-400 hover:text-white"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {miniGames.map(game => (
-            <button
-              key={game.name}
-              onClick={() => handleMiniGameClick(game)}
-              className={`${game.color} hover:opacity-80 text-white p-4 rounded-lg text-center transition-all hover:scale-105`}
-            >
-              <div className="font-medium">{game.name}</div>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderResults = () => {
-    if (!showResults || !currentGame) return null;
-
+  if (loading) {
     return (
-      <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-40 p-4">
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full animate-[slideIn_0.5s_ease-out_forwards]">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-3"></div>
+          <p className="text-gray-300 text-sm">Loading cricket game...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!gameData) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+        <div className="text-center bg-gray-800 rounded-lg p-6 shadow-lg max-w-sm w-full">
+          <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+          <h2 className="text-lg font-bold text-white mb-2">Failed to Load</h2>
+          <p className="text-gray-300 text-sm mb-4">{error}</p>
+          <button
+            onClick={() => fetchGameData()}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Helper function to render main content
+  const renderMainContent = () => (
+    <>
+      {showIntro && (
+        <div className={`fixed inset-0 bg-gray-900/70 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-1000 ${
+          introExiting ? 'fade-out-background' : ''
+        }`}>
           <div className="text-center">
-            <div className="mb-4">
+            <div className={`bg-gray-800 rounded-lg p-8 shadow-lg border border-gray-600 ${
+              introExiting 
+                ? 'transition-all duration-1000 slide-out-right'
+                : 'animate-[slideIn_0.5s_ease-out_forwards]'
+            }`}>
+              <div className="text-3xl font-bold text-white mb-2">
+                🏏
+              </div>
+              <h1 className="text-2xl font-bold text-white">
+                Arrange the Following
+              </h1>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results Page */}
+      {showResults ? (
+        <div className="max-w-2xl mx-auto">
+          {(() => {
+            const correctOrder = [...gameData.players].sort((a, b) => a.correctPosition - b.correctPosition);
+            return (
+              <>
+                {/* Results Header */}
+                <div className="p-4">
+                  <div className="max-w-2xl mx-auto">
+                    <div className="bg-gray-800 rounded-lg p-4 text-center">
+                      <div className="mb-3">
+                        {gameWon ? (
+                          <Trophy className="w-10 h-10 text-yellow-400 mx-auto mb-3" />
+                        ) : (
+                          <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+                        )}
+                      </div>
+                      <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
+                        {gameWon ? '🎉 Congratulations!' : '😔 Game Over!'}
+                      </h1>
+                      <p className="text-sm text-gray-300 mb-3">
+                        {gameWon 
+                          ? `You completed the challenge in ${attempts} attempts!`
+                          : gaveUp 
+                            ? `You gave up! Don't worry, it happens to the best of us.`
+                            : `You used all 5 attempts. Better luck next time!`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Game Stats */}
+                <div className="p-4">
+                  <div className="max-w-2xl mx-auto bg-gray-800 rounded-lg p-4">
+                  <h2 className="text-base font-bold text-white mb-3">Game Statistics</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div className="text-center p-2 bg-blue-900/30 rounded-lg border border-blue-400/30">
+                      <div className="text-lg font-bold text-blue-400">{attempts}</div>
+                      <div className="text-xs text-gray-300">Attempts</div>
+                    </div>
+                    <div className="text-center p-2 bg-green-900/30 rounded-lg border border-green-400/30">
+                      <div className="text-lg font-bold text-green-400">
+                        {gaveUp ? 0 : positionColors.filter(color => color === 'green').length}
+                      </div>
+                      <div className="text-xs text-gray-300">Correct</div>
+                    </div>
+                    <div className="text-center p-2 bg-red-900/30 rounded-lg border border-red-400/30">
+                      <div className="text-lg font-bold text-red-400">
+                        {gaveUp ? 0 : positionColors.filter(color => color === 'red').length}
+                      </div>
+                      <div className="text-xs text-gray-300">Wrong</div>
+                    </div>
+                    <div className="text-center p-2 bg-yellow-900/30 rounded-lg border border-yellow-400/30">
+                      <div className="text-lg font-bold text-yellow-400">
+                        {gameWon ? '100%' : gaveUp ? '0%' : `${Math.round((positionColors.filter(color => color === 'green').length / 5) * 100)}%`}
+                      </div>
+                      <div className="text-xs text-gray-300">Accuracy</div>
+                    </div>
+                  </div>
+                </div>
+                </div>
+
+                {/* Play Again Button */}
+                <div className="text-center p-4 max-w-2xl mx-auto">
+                  <div className="flex flex-col gap-3 justify-center items-center">
+                    <div className="flex gap-3 justify-center items-center">
+                      <button
+                        onClick={resetGame}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        Play Again
+                      </button>
+                      <button
+                        onClick={handleShare}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+                      >
+                        <Share2 className="w-4 h-4" />
+                        Share
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => setShowGameSelector(true)}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 shadow-lg text-sm"
+                    >
+                      <Calendar className="w-4 h-4" />
+                      Play Previous Games
+                    </button>
+                  </div>
+                </div>
+
+                {/* Other Games Section */}
+                <div className="p-4">
+                  <div className="max-w-2xl mx-auto bg-gray-800 rounded-lg p-4">
+                  <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
+                    <Gamepad2 className="w-4 h-4 text-purple-400" />
+                    More Cricket Games
+                  </h2>
+                  <div className="flex gap-3 justify-center">
+                    <a
+                      href="https://www.sportskeeda.com/cricket/quiz"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackMiniGameClick('Cricket Quiz', 'https://www.sportskeeda.com/cricket/quiz')}
+                      className="text-white rounded-lg transition-all duration-200 group shadow-lg"
+                    >
+                      <img 
+                        src="https://staticg.sportskeeda.com/cmc/mini-games/cricket-daily-trivia.png?w=200" 
+                        alt="Cricket Quiz" 
+                        className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
+                      />
+                    </a>
+                    
+                    <a
+                      href="https://staticg.sportskeeda.com/games/cricket/guess_the_stats/index.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackMiniGameClick('Guess Stats', 'https://staticg.sportskeeda.com/games/cricket/guess_the_stats/index.html')}
+                      className="text-white rounded-lg transition-all duration-200 group shadow-lg"
+                    >
+                      <img 
+                        src="https://staticg.sportskeeda.com/cmc/mini-games/guess-the-stats-game.png?w=200" 
+                        alt="Guess Stats" 
+                        className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
+                      />
+                    </a>
+                    
+                    <a
+                      href="https://staticg.sportskeeda.com/games/cricket/hi_low_stats_game/index.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => trackMiniGameClick('Hi-Low Stats', 'https://staticg.sportskeeda.com/games/cricket/hi_low_stats_game/index.html')}
+                      className="text-white rounded-lg transition-all duration-200 group shadow-lg"
+                    >
+                      <img 
+                        src="https://staticg.sportskeeda.com/cmc/mini-games/high-or-low-stats-game.png?w=200" 
+                        alt="Hi-Low Stats" 
+                        className="w-20 h-[72px] rounded-lg object-cover group-hover:scale-105 transition-transform"
+                      />
+                    </a>
+                  </div>
+                </div>
+                </div>
+
+                {/* Correct Order Display */}
+                <div className="p-4">
+                  <div className="max-w-2xl mx-auto bg-gray-800 rounded-lg p-4">
+                  <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-green-400" />
+                    Correct Order - {gameData.question}
+                  </h2>
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                    {correctOrder.map((player, index) => (
+                      <div key={player.id} className="bg-green-900/30 rounded-lg p-2 border border-green-400/30">
+                        <div className="relative">
+                          <div className="absolute top-0 left-0 w-5 h-5 rounded-full bg-green-500 text-white font-bold flex items-center justify-center text-xs">
+                            {index + 1}
+                          </div>
+                          <div className="text-center pt-1">
+                            <img
+                              src={player.image}
+                              alt={player.name}
+                              className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
+                              }}
+                            />
+                            <h3 className="font-semibold text-white text-xs mb-1 leading-tight">{player.name}</h3>
+                            <p className="text-xs text-gray-300 bg-gray-700 rounded px-2 py-0.5">
+                              {player.stats}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      ) : (
+        // Main Game Screen
+        <div className="max-w-2xl mx-auto">
+          {/* Desktop Heading */}
+          <div className="hidden sm:block text-center mb-4">
+            <h1 className="text-2xl font-bold text-white">
+              🏏 Arrange the Following Cricket Game
+            </h1>
+          </div>
+
+          {/* Game Complete Messages */}
+          {gameComplete && !showResults && (
+            <div className="text-center mb-4">
               {gameWon ? (
-                <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-2" />
+                <div className="bg-green-900/30 border border-green-400/30 rounded-lg p-3 shadow-md max-w-sm mx-auto">
+                  <Trophy className="w-6 h-6 text-green-400 mx-auto mb-2" />
+                  <h2 className="text-base font-bold text-green-400 mb-1">
+                    🎉 Congratulations!
+                  </h2>
+                  <p className="text-green-300 text-xs">
+                    You arranged all players correctly in {attempts} attempts!
+                  </p>
+                </div>
               ) : (
-                <AlertCircle className="w-16 h-16 text-red-400 mx-auto mb-2" />
+                <div className="bg-red-900/30 border border-red-400/30 rounded-lg p-3 shadow-md max-w-sm mx-auto">
+                  <AlertCircle className="w-6 h-6 text-red-400 mx-auto mb-2" />
+                  <h2 className="text-base font-bold text-red-400 mb-1">
+                    Game Over!
+                  </h2>
+                  <p className="text-red-300 text-xs">
+                    {gaveUp 
+                      ? "You gave up! Check the results to see the correct answer."
+                      : "You've used all 5 attempts. Check the results!"
+                    }
+                  </p>
+                </div>
               )}
             </div>
-            
-            <h2 className="text-2xl font-bold text-white mb-2">
-              {gameWon ? 'Congratulations!' : gaveUp ? 'Better luck next time!' : 'Game Over!'}
+          )}
+
+          {/* Player Pool */}
+          <div className="bg-gray-800 rounded-lg p-3 mb-3">
+            <h2 className="text-sm font-bold text-white mb-2">
+              {gameData.question}
             </h2>
             
-            <p className="text-gray-300 mb-4">
-              {gameWon 
-                ? `You solved it in ${attempts} attempt${attempts !== 1 ? 's' : ''}!`
-                : gaveUp 
-                ? `You gave up after ${attempts} attempt${attempts !== 1 ? 's' : ''}`
-                : `You used all 6 attempts`
-              }
-            </p>
-
-            {!gameWon && (
-              <div className="mb-4 p-3 bg-gray-700 rounded">
-                <p className="text-sm text-gray-300 mb-2">Correct batting order:</p>
-                <div className="text-xs text-gray-400 space-y-1">
-                  {currentGame.correctOrder.map((playerId, index) => {
-                    const player = currentGame.players.find(p => p.id === playerId);
-                    return (
-                      <div key={index} className="flex justify-between">
-                        <span>{index + 1}.</span>
-                        <span>{player?.name}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2 justify-center">
-              <button
-                onClick={handleShare}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors"
-              >
-                <Share2 className="w-4 h-4" />
-                Share
-              </button>
-              <button
-                onClick={handlePlayAgain}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded transition-colors"
-              >
-                <RotateCcw className="w-4 h-4" />
-                Play Again
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderMainContent = () => {
-    if (!currentGame) {
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400"></div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="min-h-screen bg-gray-900 text-white p-4">
-        {/* Header */}
-        <div className="max-w-2xl mx-auto mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl sm:text-2xl font-bold">Cricket Arrange</h1>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setShowDatePicker(true)}
-                className="p-2 bg-gray-700 hover:bg-gray-600 rounded transition-colors"
-                title="Select Date"
-              >
-                <Calendar className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setShowMiniGames(true)}
-                className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors text-sm"
-              >
-                More Games
-              </button>
-            </div>
-          </div>
-          
-          <div className="text-center mb-4">
-            <h2 className="text-lg font-semibold mb-1">{currentGame.title}</h2>
-            <p className="text-gray-400 text-sm">Arrange the batting order from 1 to 11</p>
-            <div className="flex justify-center items-center gap-4 mt-2 text-sm">
-              <span className="text-gray-300">Attempts: {attempts}/6</span>
-              {!gameCompleted && (
-                <button
-                  onClick={handleGiveUp}
-                  className="text-red-400 hover:text-red-300 transition-colors"
-                >
-                  Give Up
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Tooltip */}
-        {showTooltip && (
-          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg">
-            <div className="flex items-center gap-2">
-              <Info className="w-4 h-4" />
-              <span className="text-sm">Now tap an empty cell below to place this player</span>
-            </div>
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-blue-600"></div>
-          </div>
-        )}
-
-        {/* Main Game Area */}
-        <div className="max-w-2xl mx-auto">
-          {/* Available Players */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Available Players</h3>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-              {getAvailablePlayers().map(player => (
-                <button
+              {availablePlayers.map((player) => (
+                <div
                   key={player.id}
-                  onClick={() => handlePlayerSelect(player)}
-                  disabled={gameCompleted}
-                  className={`p-2 rounded border-2 transition-all ${
-                    selectedPlayer?.id === player.id
-                      ? 'border-blue-400 bg-blue-900/30 scale-105'
-                      : gameCompleted
-                      ? 'border-gray-600 bg-gray-700 cursor-not-allowed opacity-50'
-                      : 'border-gray-600 hover:border-blue-400 hover:bg-blue-900/20'
-                  }`}
+                  onClick={() => handlePlayerClick(player)}
+                  draggable={!gameComplete && !showResults && !isMobile()}
+                  onDragStart={(e) => handleDragStart(e, player)}
+                  onDragEnd={handleDragEnd}
+                  onTouchStart={(e) => handleTouchStart(e, player)}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onTouchCancel={handleTouchCancel}
+                  className={`
+                    p-2 rounded-lg border transition-all duration-300 cursor-pointer text-center
+                    ${selectedPlayer?.id === player.id 
+                      ? 'border-blue-400 bg-blue-900/30 shadow-md transform scale-105' 
+                      : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
+                    }
+                    ${animatingPlayer === player.id ? 'animate-pulse' : ''}
+                    ${dragState.isDragging && dragState.draggedPlayer?.id === player.id ? 'opacity-50 scale-105 z-50' : ''}
+                  `}
+                  style={{
+                    touchAction: 'none',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    WebkitTouchCallout: 'none'
+                  }}
                 >
                   <img
                     src={player.image}
                     alt={player.name}
-                    className="w-full h-[72px] object-cover rounded mb-1"
+                    className="w-10 h-10 rounded-full object-cover border border-gray-600 mx-auto mb-1"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
+                    }}
                   />
-                  <p className="text-xs text-center line-clamp-2 sm:line-clamp-none">{player.name}</p>
-                </button>
+                  <h3 className="font-medium text-white text-xs leading-tight line-clamp-2 sm:line-clamp-none">{player.name}</h3>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Batting Order */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Batting Order</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
-              {battingOrder.map((player, index) => (
-                <button
+          {/* Arrangement Area */}
+          <div className="bg-gray-800 rounded-lg p-3 mb-3">
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="text-sm font-bold text-white">
+                Your Answer
+              </h2>
+              <div className="flex items-center gap-1">
+                <AlertCircle className="w-3 h-3 text-orange-400" />
+                <span className="text-xs font-medium text-gray-300">Attempts:</span>
+                <span className="text-sm font-bold text-orange-400">{attempts}/5</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {arrangedPlayers.map((player, index) => (
+                <div
                   key={index}
-                  onClick={() => handleSlotSelect(index)}
-                  disabled={gameCompleted && !selectedPlayer}
-                  className={`p-2 rounded border-2 min-h-[45px] sm:min-h-[50px] transition-all ${
-                    feedback[index] === 'correct'
-                      ? 'border-green-400 bg-green-900/30'
-                      : feedback[index] === 'incorrect'
-                      ? 'border-red-400 bg-red-900/30'
-                      : selectedPlayer && !player
-                      ? 'border-yellow-400/30 bg-yellow-900/30'
-                      : player
-                      ? 'border-blue-400/30 bg-blue-900/20'
-                      : gameCompleted
-                      ? 'border-gray-600 bg-gray-700 cursor-not-allowed'
-                      : 'border-gray-600 hover:border-gray-500'
-                  }`}
+                  onClick={() => handlePositionClick(index)}
+                  data-position-index={index}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, index)}
+                  className={`
+                    p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-200 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center relative
+                    ${dragOverPosition === index 
+                      ? 'border-blue-400 bg-blue-900/40 transform scale-105 shadow-xl ring-2 ring-blue-400/50' 
+                      : getPositionBorderColor(index)
+                    }
+                    ${!isMobile() ? 'hover:border-blue-400 hover:bg-blue-900/20' : ''}
+                    ${dragState.isDragging && !player ? 'border-blue-400 bg-blue-900/30 scale-105' : ''}
+                  `}
+                  style={{
+                    touchAction: 'manipulation'
+                  }}
                 >
-                  <div className="text-xs text-gray-400 mb-0.5 sm:mb-1">{index + 1}</div>
+                  <div className={`absolute top-1 left-1 text-xs font-bold ${
+                    positionColors[index] === 'green' 
+                      ? 'text-green-400' 
+                      : positionColors[index] === 'red'
+                      ? 'text-red-400'
+                      : 'text-gray-400'
+                  }`}>
+                    {index + 1}
+                  </div>
+                  
                   {player ? (
-                    <div className="flex flex-col items-center">
+                    <div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemovePlayer(index);
+                        }}
+                        className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 bg-gray-500 hover:bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold transition-colors duration-200 z-10"
+                        disabled={gameComplete}
+                      >
+                        ×
+                      </button>
                       <img
                         src={player.image}
                         alt={player.name}
-                        className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded mb-1"
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover border border-gray-600 mx-auto mb-0.5 sm:mb-1"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop";
+                        }}
                       />
-                      <p className="text-xs text-center line-clamp-2">{player.name}</p>
+                      <h3 className="font-medium text-white text-xs leading-tight line-clamp-2 sm:line-clamp-none">{player.name}</h3>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-10 text-gray-500 text-xs">
-                      Empty
+                    <div className="flex flex-col items-center justify-center h-full text-gray-500 text-xs">
+                      {selectedPlayer ? 'Click here' : 'Empty'}
                     </div>
                   )}
+                </div>
+              ))}
+              
+              {/* Submit Button next to 5th tile */}
+              <div className="flex items-center justify-center">
+                <div className="flex flex-col gap-1">
+                  <button
+                    onClick={handleSubmit}
+                    disabled={!canSubmit || gameComplete}
+                    className={`
+                      px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
+                      ${canSubmit && !gameComplete
+                        ? 'bg-green-600 hover:bg-green-700 text-white transform hover:scale-105'
+                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }
+                    `}
+                  >
+                    <Send className="w-3 h-3" />
+                    Submit
+                  </button>
+                  
+                  <button
+                    onClick={handleGiveUp}
+                    disabled={gameComplete}
+                    className={`
+                      px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
+                      ${!gameComplete
+                        ? 'bg-red-600 hover:bg-red-700 text-white transform hover:scale-105'
+                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      }
+                    `}
+                  >
+                    <Flag className="w-3 h-3" />
+                    Give Up
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Game Selector Popup - Available across all screens */}
+      {showGameSelector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-blue-400" />
+                Select Game Date
+              </h2>
+              <button
+                onClick={() => setShowGameSelector(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="space-y-2">
+              {availableDates.map((gameDate, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleDateSelect(gameDate.date)}
+                  className="w-full text-left p-3 rounded-lg border border-gray-600 hover:border-gray-500 hover:bg-gray-700/50 text-white transition-all duration-200"
+                >
+                  <div className="font-semibold text-sm">{gameDate.date}</div>
+                  <div className="text-xs text-gray-300 mt-1">{gameDate.question}</div>
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="text-center">
-            <button
-              onClick={handleSubmit}
-              disabled={!canSubmit()}
-              className={`px-6 py-2 rounded font-medium transition-colors ${
-                canSubmit()
-                  ? 'bg-green-600 hover:bg-green-700 text-white'
-                  : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              Submit Order
-            </button>
+            
+            {availableDates.length === 0 && (
+              <div className="text-center text-gray-400 py-8">
+                <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No previous games available</p>
+              </div>
+            )}
           </div>
         </div>
+      )}
+    </>
+  );
 
-        {/* Ads */}
-        <div className="lg:hidden">
-          <div 
-            id="div-gpt-ad-1754030829221-0" 
-            className="fixed bottom-0 left-0 right-0 z-10 flex justify-center bg-black p-1"
-          ></div>
+  return (
+    <div className="min-h-screen bg-gray-900 text-white pb-[340px] sm:pb-0 lg:pb-28">
+      {/* Desktop Layout with Ads */}
+      <div className="hidden lg:flex lg:justify-center lg:gap-8 lg:px-4">
+        {/* Left Ad */}
+        <div className="lg:w-[300px] lg:flex-shrink-0">
+          <div className="sticky top-4">
+            <div 
+              id="div-gpt-ad-1754030483680-0" 
+              style={{ minWidth: '300px', minHeight: '250px' }}
+              dangerouslySetInnerHTML={{
+                __html: `<script>
+                  if (window.googletag) {
+                    googletag.cmd.push(function() { 
+                      googletag.display('div-gpt-ad-1754030483680-0'); 
+                    });
+                  }
+                </script>`
+              }}
+            />
+          </div>
         </div>
 
-        <div className="hidden lg:block">
-          <div 
-            id="div-gpt-ad-1754030483680-0" 
-            className="fixed top-4 right-4 z-10"
-          ></div>
-          <div 
-            id="div-gpt-ad-1754030700661-0" 
-            className="fixed top-4 left-4 z-10"
-          ></div>
-          <div 
-            id="div-gpt-ad-1754030936119-0" 
-            className="fixed bottom-0 left-0 right-0 z-10 flex justify-center bg-black p-1"
-          ></div>
+        {/* Tooltip for first selection */}
+        {showTooltip && selectedPlayer && (
+          <div className="relative mb-4">
+            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 mx-auto max-w-sm">
+              <Info className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm">Now tap an empty cell below to place this player</span>
+            </div>
+            <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-600 mx-auto"></div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="lg:max-w-2xl lg:flex-1">
+          {renderMainContent()}
         </div>
 
-        {/* Modals */}
-        {showDatePicker && renderDatePicker()}
-        {showMiniGames && renderMiniGames()}
-        {renderResults()}
+        {/* Right Ad */}
+        <div className="lg:w-[300px] lg:flex-shrink-0">
+          <div className="sticky top-4">
+            <div 
+              id="div-gpt-ad-1754030700661-0" 
+              style={{ minWidth: '300px', minHeight: '250px' }}
+              dangerouslySetInnerHTML={{
+                __html: `<script>
+                  if (window.googletag) {
+                    googletag.cmd.push(function() { 
+                      googletag.display('div-gpt-ad-1754030700661-0'); 
+                    });
+                  }
+                </script>`
+              }}
+            />
+          </div>
+        </div>
       </div>
-    );
-  };
 
-  return renderMainContent();
-};
+      {/* Mobile Layout (unchanged) */}
+      <div className="lg:hidden">
+        {renderMainContent()}
+      </div>
 
-export default CricketGame;
+      {/* Bottom Sticky Ad for Desktop */}
+      <div className="hidden lg:block fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40">
+        <div 
+          id="div-gpt-ad-1754030936119-0" 
+          style={{ minWidth: '970px', minHeight: '90px' }}
+          dangerouslySetInnerHTML={{
+            __html: `<script>
+              if (window.googletag) {
+                googletag.cmd.push(function() { 
+                  googletag.display('div-gpt-ad-1754030936119-0'); 
+                });
+              }
+            </script>`
+          }}
+        />
+      </div>
+
+      {/* Mobile Sticky Ad */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-800 border-t border-gray-700">
+        <div className="flex justify-center p-2">
+          <div id='div-gpt-ad-1754030829221-0' style={{maxWidth: '336px', maxHeight: '280px'}}>
+            <script dangerouslySetInnerHTML={{
+              __html: `
+                if (typeof googletag !== 'undefined') {
+                  googletag.cmd.push(function() { 
+                    googletag.display('div-gpt-ad-1754030829221-0'); 
+                  });
+                }
+              `
+            }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
