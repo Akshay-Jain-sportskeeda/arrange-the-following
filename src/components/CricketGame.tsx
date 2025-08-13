@@ -57,6 +57,10 @@ export default function CricketGame() {
   const [showIntro, setShowIntro] = useState<boolean>(false);
   const [introExiting, setIntroExiting] = useState<boolean>(false);
   const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
+  const [dragState, setDragState] = useState<{
+    isDragging: boolean;
+    draggedPlayer: Player | null;
+    startTime: number;
     startPos: { x: number; y: number } | null;
   }>({
     isDragging: false,
@@ -289,7 +293,37 @@ export default function CricketGame() {
             id: 1,
             name: "Virat Kohli",
             image: "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
-            correctPosition: 1,
+            stats: "13,906 runs",
+            correctPosition: 1
+          }
+        ]
+      };
+      
+      setGameData(fallbackData);
+      setArrangedPlayers(new Array(fallbackData.players.length).fill(null));
+      setPositionColors(new Array(fallbackData.players.length).fill(''));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDateSelect = (date: string) => {
+    // Track previous game selection
+    trackPlayPrevious(date);
+    
+    // Reset game state
+    setSelectedPlayer(null);
+    setAttempts(0);
+    setGameComplete(false);
+    setGameWon(false);
+    setShowResults(false);
+    setCanSubmit(false);
+    setGaveUp(false);
+    setShowGameSelector(false);
+    
+    // Fetch new game data
+    fetchGameData(date);
+  };
 
   const handlePlayerClick = (player: Player) => {
     if (gameComplete || showResults) return;
