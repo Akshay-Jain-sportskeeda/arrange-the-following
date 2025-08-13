@@ -1043,9 +1043,6 @@ export default function CricketGame() {
                 <div
                   key={player.id}
                   onClick={() => handlePlayerClick(player)}
-                  draggable={!gameComplete && !showResults && !isMobile()}
-                  onDragStart={(e) => handleDragStart(e, player)}
-                  onDragEnd={handleDragEnd}
                   onTouchStart={(e) => handleTouchStart(e, player)}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
