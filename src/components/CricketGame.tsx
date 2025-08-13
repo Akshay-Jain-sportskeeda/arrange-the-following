@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, RotateCcw, Calendar, Share2, ExternalLink, Info, AlertCircle, Send } from 'lucide-react';
+import { Trophy, RotateCcw, Calendar, Share2, ExternalLink, Info, AlertCircle, Send, Flag } from 'lucide-react';
 import { 
   trackGameBegin, 
   trackGameComplete, 
