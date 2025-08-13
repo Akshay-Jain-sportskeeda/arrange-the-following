@@ -360,10 +360,18 @@ export default function CricketGame() {
   const handlePlayerClick = (player: Player) => {
     if (gameComplete || showResults) return;
     
-    // Track player selection
-    trackPlayerSelect(player.name, player.id);
-    
-    setSelectedPlayer(player);
+    if (selectedPlayer?.id === player.id) {
+      setSelectedPlayer(null);
+      setShowTooltip(false);
+      trackPlayerSelect(player.name, player.id);
+    } else {
+      setSelectedPlayer(player);
+      // Show tooltip only on first selection when no players are placed
+      if (arrangedPlayers.every(slot => slot === null)) {
+        setShowTooltip(true);
+      }
+      trackPlayerSelect(player.name, player.id);
+    }
   };
 
   const handlePositionClick = (positionIndex: number) => {
