@@ -57,13 +57,6 @@ export default function CricketGame() {
   const [showIntro, setShowIntro] = useState<boolean>(false);
   const [introExiting, setIntroExiting] = useState<boolean>(false);
   const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [touchStartTime, setTouchStartTime] = useState<number>(0);
-  const [touchMoved, setTouchMoved] = useState<boolean>(false);
-  const [dragState, setDragState] = useState<{
-    isDragging: boolean;
-    draggedPlayer: Player | null;
-    startTime: number;
     startPos: { x: number; y: number } | null;
   }>({
     isDragging: false,
@@ -297,65 +290,6 @@ export default function CricketGame() {
             name: "Virat Kohli",
             image: "https://images.pexels.com/photos/163398/cricket-batsman-player-sport-163398.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
             correctPosition: 1,
-            stats: "12,898 runs"
-          },
-          {
-            id: 2,
-            name: "Rohit Sharma",
-            image: "https://images.pexels.com/photos/1263349/pexels-photo-1263349.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
-            correctPosition: 2,
-            stats: "10,709 runs"
-          },
-          {
-            id: 3,
-            name: "MS Dhoni",
-            image: "https://images.pexels.com/photos/1263348/pexels-photo-1263348.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
-            correctPosition: 3,
-            stats: "10,773 runs"
-          },
-          {
-            id: 4,
-            name: "Shikhar Dhawan",
-            image: "https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
-            correctPosition: 4,
-            stats: "6,793 runs"
-          },
-          {
-            id: 5,
-            name: "KL Rahul",
-            image: "https://images.pexels.com/photos/1263347/pexels-photo-1263347.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&fit=crop",
-            correctPosition: 5,
-            stats: "2,962 runs"
-          }
-        ]
-      };
-      
-      setGameData(fallbackData);
-      setArrangedPlayers(new Array(fallbackData.players.length).fill(null));
-      setPositionColors(new Array(fallbackData.players.length).fill(''));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDateSelect = (selectedDate: string) => {
-    // Track previous game selection
-    trackPlayPrevious(selectedDate);
-    
-    setShowGameSelector(false);
-    // Reset game state
-    setSelectedPlayer(null);
-    setAttempts(0);
-    setGameComplete(false);
-    setGameWon(false);
-    setShowResults(false);
-    setArrangedPlayers([]);
-    setPositionColors([]);
-    setCanSubmit(false);
-    setGaveUp(false);
-    // Fetch new data
-    fetchGameData(selectedDate);
-  };
 
   const handlePlayerClick = (player: Player) => {
     if (gameComplete || showResults) return;
