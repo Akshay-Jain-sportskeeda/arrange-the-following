@@ -1281,15 +1281,6 @@ export default function CricketGame() {
           </div>
         )}
 
-        {/* Tooltip for first selection */}
-        {showTooltip && selectedPlayer && (
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
-            <div className="bg-black bg-opacity-50 text-white px-3 py-2 rounded text-sm">
-              Place in the right order
-            </div>
-          </div>
-        )}
-
         {/* Main Content */}
         <div className="lg:max-w-2xl lg:flex-1">
           {renderMainContent()}
