@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RotateCcw, Trophy, AlertCircle, Send, Calendar, ExternalLink, X, Gamepad2, Flag, Share2 } from 'lucide-react';
+import { Trophy, RotateCcw, Calendar, Share2, ExternalLink, X, Info } from 'lucide-react';
 import { 
   trackGameBegin, 
   trackGameComplete, 
@@ -1251,6 +1251,17 @@ export default function CricketGame() {
             />
           </div>
         </div>
+
+        {/* Tooltip for first selection */}
+        {showTooltip && selectedPlayer && (
+          <div className="relative mb-4">
+            <div className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 mx-auto max-w-sm">
+              <Info className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm">Now tap an empty cell below to place this player</span>
+            </div>
+            <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-blue-600 mx-auto"></div>
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="lg:max-w-2xl lg:flex-1">
