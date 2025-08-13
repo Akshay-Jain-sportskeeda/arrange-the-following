@@ -993,7 +993,7 @@ export default function CricketGame() {
         </div>
       ) : (
         // Main Game Screen
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto relative z-10">
           {/* Desktop Heading */}
           <div className="hidden sm:block text-center mb-4">
             <h1 className="text-2xl font-bold text-white">
@@ -1265,6 +1265,11 @@ export default function CricketGame() {
               }}
             />
           </div>
+        </div>
+
+        {/* Main Content for Desktop */}
+        <div className="lg:max-w-2xl lg:flex-1">
+          {renderMainContent()}
         </div>
 
         {/* Right Ad */}
