@@ -55,7 +55,6 @@ export default function CricketGame() {
   const [gaveUp, setGaveUp] = useState<boolean>(false);
   const [showIntro, setShowIntro] = useState<boolean>(false);
   const [introExiting, setIntroExiting] = useState<boolean>(false);
-  const [draggedPlayer, setDraggedPlayer] = useState<Player | null>(null);
   const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [touchStartTime, setTouchStartTime] = useState<number>(0);
@@ -437,12 +436,12 @@ export default function CricketGame() {
       return;
     }
     
-    setDraggedPlayer(player);
+    setDragState(prev => ({ ...prev, draggedPlayer: player }));
     e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragOver = (e: React.DragEvent, positionIndex: number) => {
-    if (!draggedPlayer || gameComplete || showResults || isMobile()) return;
+    if (!dragState.draggedPlayer || gameComplete || showResults || isMobile()) return;
     
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
@@ -457,28 +456,28 @@ export default function CricketGame() {
   const handleDrop = (e: React.DragEvent, positionIndex: number) => {
     e.preventDefault();
     
-    if (!draggedPlayer || gameComplete || showResults || !gameData || isMobile()) return;
+    if (!dragState.draggedPlayer || gameComplete || showResults || !gameData || isMobile()) return;
 
     // Track slot selection for drag and drop
-    trackSlotSelect(positionIndex, draggedPlayer.name);
+    trackSlotSelect(positionIndex, dragState.draggedPlayer.name);
 
     // Add animation
-    setAnimatingPlayer(draggedPlayer.id);
+    setAnimatingPlayer(dragState.draggedPlayer.id);
     
     setTimeout(() => {
       const newArrangedPlayers = [...arrangedPlayers];
       
       // Remove player from any existing position
-      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === draggedPlayer.id);
+      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === dragState.draggedPlayer!.id);
       if (existingIndex !== -1) {
         newArrangedPlayers[existingIndex] = null;
       }
 
       // Place player in new position
-      newArrangedPlayers[positionIndex] = draggedPlayer;
+      newArrangedPlayers[positionIndex] = dragState.draggedPlayer!;
       
       // Remove player from available players
-      const newAvailablePlayers = availablePlayers.filter(p => p.id !== draggedPlayer.id);
+      const newAvailablePlayers = availablePlayers.filter(p => p.id !== dragState.draggedPlayer!.id);
       
       // If there was a player in this position, add them back to available players
       if (arrangedPlayers[positionIndex]) {
@@ -487,7 +486,7 @@ export default function CricketGame() {
       
       setArrangedPlayers(newArrangedPlayers);
       setAvailablePlayers(newAvailablePlayers);
-      setDraggedPlayer(null);
+      setDragState(prev => ({ ...prev, draggedPlayer: null }));
       setDragOverPosition(null);
       setAnimatingPlayer(null);
     }, 300);
@@ -495,7 +494,7 @@ export default function CricketGame() {
 
   const handleDragEnd = () => {
     if (isMobile()) return;
-    setDraggedPlayer(null);
+    setDragState(prev => ({ ...prev, draggedPlayer: null }));
     setDragOverPosition(null);
   };
 
