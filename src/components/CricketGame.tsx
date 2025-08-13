@@ -37,6 +37,7 @@ interface GameDate {
 export default function CricketGame() {
   const [gameData, setGameData] = useState<GameData | null>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
   const [attempts, setAttempts] = useState<number>(0);
   const [gameComplete, setGameComplete] = useState<boolean>(false);
   const [gameWon, setGameWon] = useState<boolean>(false);
