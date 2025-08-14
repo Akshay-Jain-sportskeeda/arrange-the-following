@@ -445,6 +445,9 @@ export default function CricketGame() {
   const handleTouchStart = (e: React.TouchEvent, player: Player) => {
     if (gameComplete || showResults) return;
     
+    // Prevent default to avoid conflicts
+    e.preventDefault();
+    
     const touch = e.touches[0];
     setDragState({
       isDragging: false,
@@ -452,13 +455,12 @@ export default function CricketGame() {
       startTime: Date.now(),
       startPos: { x: touch.clientX, y: touch.clientY }
     });
-    
-    // Prevent default to avoid conflicts with click events
-    e.preventDefault();
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    e.preventDefault(); // Prevent scrolling
+    // Prevent scrolling and other default behaviors
+    e.preventDefault();
+    e.stopPropagation();
     
     if (!dragState.draggedPlayer || !dragState.startPos) return;
     
@@ -490,6 +492,9 @@ export default function CricketGame() {
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!dragState.draggedPlayer) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
     
     const timeDiff = Date.now() - dragState.startTime;
     
@@ -951,6 +956,7 @@ export default function CricketGame() {
                   key={player.id}
                   onClick={() => handlePlayerClick(player)}
                   onTouchStart={(e) => handleTouchStart(e, player)}
+                  onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
                   onTouchCancel={handleTouchCancel}
                   className={`
@@ -966,7 +972,8 @@ export default function CricketGame() {
                     touchAction: 'none',
                     userSelect: 'none',
                     WebkitUserSelect: 'none',
-                    WebkitTouchCallout: 'none'
+                    WebkitTouchCallout: 'none',
+                    WebkitUserDrag: 'none'
                   }}
                 >
                   <img
