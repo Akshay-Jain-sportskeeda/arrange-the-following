@@ -57,7 +57,6 @@ export default function CricketGame() {
   const [showIntro, setShowIntro] = useState<boolean>(false);
   const [introExiting, setIntroExiting] = useState<boolean>(false);
   const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
-  const [dragState, setDragState] = useState<{
     isDragging: boolean;
     draggedPlayer: Player | null;
     startTime: number;
@@ -398,62 +397,6 @@ export default function CricketGame() {
     ));
   };
 
-  // Drag and Drop handlers
-  const handleDragStart = (e: React.DragEvent, player: Player) => {
-    if (gameComplete || showResults || isMobile()) {
-      e.preventDefault();
-      return;
-    }
-    
-    setDragState(prev => ({ ...prev, draggedPlayer: player }));
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, positionIndex: number) => {
-    if (!dragState.draggedPlayer || gameComplete || showResults || isMobile()) return;
-    
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverPosition(positionIndex);
-  };
-
-  const handleDragLeave = () => {
-    if (isMobile()) return;
-    setDragOverPosition(null);
-  };
-
-  const handleDrop = (e: React.DragEvent, positionIndex: number) => {
-    e.preventDefault();
-    
-    if (!dragState.draggedPlayer || gameComplete || showResults || !gameData || isMobile()) return;
-
-    // Track slot selection for drag and drop
-    trackSlotSelect(positionIndex, dragState.draggedPlayer.name);
-
-    // Add animation
-    setAnimatingPlayer(dragState.draggedPlayer.id);
-    
-    setTimeout(() => {
-      const newArrangedPlayers = [...arrangedPlayers];
-      
-      // Remove player from any existing position
-      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === dragState.draggedPlayer!.id);
-      if (existingIndex !== -1) {
-        newArrangedPlayers[existingIndex] = null;
-      }
-
-      // Place player in new position
-      newArrangedPlayers[positionIndex] = dragState.draggedPlayer!;
-      
-      // Remove player from available players
-      const newAvailablePlayers = availablePlayers.filter(p => p.id !== dragState.draggedPlayer!.id);
-      
-      // If there was a player in this position, add them back to available players
-      if (arrangedPlayers[positionIndex]) {
-        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
-      }
-      
-      setArrangedPlayers(newArrangedPlayers);
       setAvailablePlayers(newAvailablePlayers);
       setDragState(prev => ({ ...prev, draggedPlayer: null }));
       setDragOverPosition(null);
@@ -1012,12 +955,9 @@ export default function CricketGame() {
                   key={player.id}
                   onClick={() => handlePlayerClick(player)}
                   onTouchStart={(e) => handleTouchStart(e, player)}
-                  onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
                   onTouchCancel={handleTouchCancel}
                   className={`
-                    p-2 rounded-lg border transition-all duration-300 cursor-pointer text-center
-                    ${selectedPlayer?.id === player.id 
                       ? 'border-blue-400 bg-blue-900/30 shadow-md transform scale-105' 
                       : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
                     }
@@ -1068,13 +1008,10 @@ export default function CricketGame() {
             
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {arrangedPlayers.map((player, index) => (
-                <div
+                    ${selectedSlot === index ? 'border-blue-400 bg-blue-900/20' : 'hover:border-gray-500'}
                   key={index}
                   onClick={() => handlePositionClick(index)}
                   data-position-index={index}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDragLeave={handleDragLeave}
-                  onDrop={(e) => handleDrop(e, index)}
                   className={`
                     p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-200 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center relative
                     ${dragOverPosition === index 
