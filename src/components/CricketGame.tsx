@@ -57,6 +57,7 @@ export default function CricketGame() {
   const [showIntro, setShowIntro] = useState<boolean>(false);
   const [introExiting, setIntroExiting] = useState<boolean>(false);
   const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
+  const [dragState, setDragState] = useState<{
     isDragging: boolean;
     draggedPlayer: Player | null;
     startTime: number;
@@ -397,6 +398,36 @@ export default function CricketGame() {
     ));
   };
 
+  const handleMobileDrop = (positionIndex: number) => {
+    if (!dragState.draggedPlayer || gameComplete || showResults || !gameData) return;
+
+    // Track slot selection
+    trackSlotSelect(positionIndex, dragState.draggedPlayer.name);
+
+    // Add animation
+    setAnimatingPlayer(dragState.draggedPlayer.id);
+    
+    setTimeout(() => {
+      const newArrangedPlayers = [...arrangedPlayers];
+      
+      // Remove player from any existing position
+      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === dragState.draggedPlayer!.id);
+      if (existingIndex !== -1) {
+        newArrangedPlayers[existingIndex] = null;
+      }
+
+      // Place player in new position
+      newArrangedPlayers[positionIndex] = dragState.draggedPlayer!;
+      
+      // Remove player from available players
+      const newAvailablePlayers = availablePlayers.filter(p => p.id !== dragState.draggedPlayer!.id);
+      
+      // If there was a player in this position, add them back to available players
+      if (arrangedPlayers[positionIndex]) {
+        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
+      }
+      
+      setArrangedPlayers(newArrangedPlayers);
       setAvailablePlayers(newAvailablePlayers);
       setDragState(prev => ({ ...prev, draggedPlayer: null }));
       setDragOverPosition(null);
@@ -507,41 +538,6 @@ export default function CricketGame() {
       startPos: null
     });
     setDragOverPosition(null);
-  };
-
-  const handleMobileDrop = (positionIndex: number) => {
-    if (!dragState.draggedPlayer || gameComplete || showResults || !gameData) return;
-
-    // Track slot selection
-    trackSlotSelect(positionIndex, dragState.draggedPlayer.name);
-
-    // Add animation
-    setAnimatingPlayer(dragState.draggedPlayer.id);
-    
-    setTimeout(() => {
-      const newArrangedPlayers = [...arrangedPlayers];
-      
-      // Remove player from any existing position
-      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === dragState.draggedPlayer!.id);
-      if (existingIndex !== -1) {
-        newArrangedPlayers[existingIndex] = null;
-      }
-
-      // Place player in new position
-      newArrangedPlayers[positionIndex] = dragState.draggedPlayer!;
-      
-      // Remove player from available players
-      const newAvailablePlayers = availablePlayers.filter(p => p.id !== dragState.draggedPlayer!.id);
-      
-      // If there was a player in this position, add them back to available players
-      if (arrangedPlayers[positionIndex]) {
-        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
-      }
-      
-      setArrangedPlayers(newArrangedPlayers);
-      setAvailablePlayers(newAvailablePlayers);
-      setAnimatingPlayer(null);
-    }, 300);
   };
 
   const handleSubmit = () => {
@@ -958,6 +954,8 @@ export default function CricketGame() {
                   onTouchEnd={handleTouchEnd}
                   onTouchCancel={handleTouchCancel}
                   className={`
+                    p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-200 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center
+                    ${selectedPlayer?.id === player.id
                       ? 'border-blue-400 bg-blue-900/30 shadow-md transform scale-105' 
                       : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
                     }
@@ -1008,7 +1006,7 @@ export default function CricketGame() {
             
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {arrangedPlayers.map((player, index) => (
-                    ${selectedSlot === index ? 'border-blue-400 bg-blue-900/20' : 'hover:border-gray-500'}
+                <div
                   key={index}
                   onClick={() => handlePositionClick(index)}
                   data-position-index={index}
