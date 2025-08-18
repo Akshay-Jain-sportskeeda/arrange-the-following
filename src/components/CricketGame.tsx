@@ -115,6 +115,7 @@ export default function CricketGame() {
     
     setTimeout(() => setShowResults(true), 2000);
   };
+  
   useEffect(() => {
     fetchGameData();
     
@@ -522,6 +523,7 @@ export default function CricketGame() {
       alert(`Share this: ${fullText}`);
     });
   };
+  
   const getPositionBorderColor = (index: number) => {
     const color = positionColors[index];
     if (color === 'green') return 'border-green-400 bg-green-900/20';
@@ -940,7 +942,7 @@ export default function CricketGame() {
                     className={`
                       px-1.5 py-1 sm:px-2 sm:py-1.5 rounded-lg font-medium transition-all duration-200 flex items-center gap-1 shadow-lg text-xs
                       ${!gameComplete
-                        ? 'bg-red-600 hover:bg-red-700 text-white transform hover:scale-105'
+                        ? 'bg-red-600 hover:bg-red-700 text-white'
                         : 'bg-gray-600 text-gray-400 cursor-not-allowed'
                       }
                     `}
