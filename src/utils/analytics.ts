@@ -8,7 +8,6 @@ declare global {
 export const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, {
-      event_category: 'Cricket Game',
       ...parameters
     });
   }
@@ -16,86 +15,132 @@ export const trackEvent = (eventName: string, parameters?: Record<string, any>) 
 
 // Game Events
 export const trackGameBegin = () => {
-  trackEvent('GAME.CRICKET.ARRANGE.game_begin', {
-    event_label: 'New game started'
+  trackEvent('game_start', {
+    game_name: 'cricket_arrange',
+    content_type: 'game'
   });
 };
 
 export const trackGameComplete = (won: boolean, attempts: number, gaveUp: boolean) => {
-  trackEvent('GAME.CRICKET.ARRANGE.game_complete', {
-    event_label: won ? 'Game Won' : 'Game Lost',
+  trackEvent('level_end', {
+    game_name: 'cricket_arrange',
+    level_name: 'main_game',
+    success: won,
     game_result: won ? 'win' : 'lose',
     attempts_used: attempts,
     gave_up: gaveUp,
-    value: won ? attempts : 0
+    score: won ? (6 - attempts) * 100 : 0
   });
 };
 
 export const trackSubmit = (attempt: number, allCorrect: boolean) => {
-  trackEvent('GAME.CRICKET.ARRANGE.submit_answer', {
-    event_label: `Attempt ${attempt}`,
+  trackEvent('post_score', {
+    game_name: 'cricket_arrange',
+    level_name: 'main_game',
     attempt_number: attempt,
     all_correct: allCorrect,
-    value: attempt
+    score: allCorrect ? (6 - attempt) * 100 : 0
   });
 };
 
 export const trackGiveUp = (attempt: number) => {
-  trackEvent('GAME.CRICKET.ARRANGE.give_up', {
-    event_label: `Gave up at attempt ${attempt}`,
-    attempt_number: attempt
+  trackEvent('level_end', {
+    game_name: 'cricket_arrange',
+    level_name: 'main_game',
+    success: false,
+    game_result: 'gave_up',
+    attempts_used: attempt,
+    gave_up: true,
+    score: 0
   });
 };
 
 export const trackPlayerSelect = (playerName: string, playerId: number) => {
-  trackEvent('GAME.CRICKET.ARRANGE.player_select', {
-    event_label: `Selected ${playerName}`,
-    player_name: playerName,
-    player_id: playerId
+  trackEvent('select_item', {
+    game_name: 'cricket_arrange',
+    item_id: playerId.toString(),
+    item_name: playerName,
+    content_type: 'player'
   });
 };
 
 export const trackSlotSelect = (slotPosition: number, playerName?: string) => {
-  trackEvent('GAME.CRICKET.ARRANGE.slot_select', {
-    event_label: `Slot ${slotPosition + 1} selected`,
-    slot_position: slotPosition + 1,
-    player_placed: playerName || 'none'
-  });
-};
-
-export const trackPlayerRemove = (playerName: string, slotPosition: number) => {
-  trackEvent('GAME.CRICKET.ARRANGE.player_remove', {
-    event_label: `Removed ${playerName} from slot ${slotPosition + 1}`,
+  trackEvent('select_content', {
+    game_name: 'cricket_arrange',
+    content_type: 'slot',
+    content_id: (slotPosition + 1).toString(),
     player_name: playerName,
     slot_position: slotPosition + 1
   });
 };
 
+export const trackPlayerRemove = (playerName: string, slotPosition: number) => {
+  trackEvent('remove_from_cart', {
+    game_name: 'cricket_arrange',
+    item_name: playerName,
+    content_type: 'player',
+    slot_position: slotPosition + 1
+  });
+};
+
 export const trackPlayAgain = () => {
-  trackEvent('GAME.CRICKET.ARRANGE.play_again', {
-    event_label: 'Started new game'
+  trackEvent('game_start', {
+    game_name: 'cricket_arrange',
+    content_type: 'game',
+    replay: true
   });
 };
 
 export const trackPlayPrevious = (selectedDate: string) => {
-  trackEvent('GAME.CRICKET.ARRANGE.play_previous', {
-    event_label: `Selected previous game: ${selectedDate}`,
+  trackEvent('select_content', {
+    game_name: 'cricket_arrange',
+    content_type: 'previous_game',
+    content_id: selectedDate,
     selected_date: selectedDate
   });
 };
 
 export const trackShare = (gameWon: boolean, attempts: number) => {
-  trackEvent('GAME.CRICKET.ARRANGE.share', {
-    event_label: gameWon ? 'Shared winning game' : 'Shared game',
+  trackEvent('share', {
+    game_name: 'cricket_arrange',
+    method: 'native_share',
+    content_type: 'game_result',
     game_result: gameWon ? 'win' : 'lose',
     attempts_used: attempts
   });
 };
 
 export const trackMiniGameClick = (gameName: string, gameUrl: string) => {
-  trackEvent('GAME.CRICKET.ARRANGE.mini_game_click', {
-    event_label: `Clicked ${gameName}`,
-    game_name: gameName,
-    game_url: gameUrl
+  trackEvent('select_content', {
+    game_name: 'cricket_arrange',
+    content_type: 'external_game',
+    content_id: gameName.toLowerCase().replace(/\s+/g, '_'),
+    item_name: gameName,
+    destination_url: gameUrl
+  });
+};
+
+// Additional GA4 events for better tracking
+export const trackPageView = (pageName: string) => {
+  trackEvent('page_view', {
+    page_title: pageName,
+    page_location: window.location.href,
+    game_name: 'cricket_arrange'
+  });
+};
+
+export const trackEngagement = (engagementTime: number) => {
+  trackEvent('user_engagement', {
+    game_name: 'cricket_arrange',
+    engagement_time_msec: engagementTime
+  });
+};
+
+export const trackError = (errorMessage: string, errorType: string) => {
+  trackEvent('exception', {
+    game_name: 'cricket_arrange',
+    description: errorMessage,
+    fatal: false,
+    error_type: errorType
   });
 };

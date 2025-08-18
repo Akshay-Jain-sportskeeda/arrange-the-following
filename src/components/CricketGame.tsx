@@ -11,7 +11,10 @@ import {
   trackPlayAgain, 
   trackPlayPrevious, 
   trackShare, 
-  trackMiniGameClick 
+  trackMiniGameClick,
+  trackPageView,
+  trackEngagement,
+  trackError
 } from '../utils/analytics';
 
 interface Player {
@@ -57,17 +60,7 @@ export default function CricketGame() {
   const [showIntro, setShowIntro] = useState<boolean>(false);
   const [introExiting, setIntroExiting] = useState<boolean>(false);
   const [dragOverPosition, setDragOverPosition] = useState<number | null>(null);
-  const [dragState, setDragState] = useState<{
-    isDragging: boolean;
-    draggedPlayer: Player | null;
-    startTime: number;
-    startPos: { x: number; y: number } | null;
-  }>({
-    isDragging: false,
-    draggedPlayer: null,
-    startTime: 0,
-    startPos: null
-  });
+  const [engagementStartTime, setEngagementStartTime] = useState<number>(Date.now());
 
   // Check if device is mobile
   const isMobile = () => {
@@ -124,6 +117,21 @@ export default function CricketGame() {
   };
   useEffect(() => {
     fetchGameData();
+    
+    // Track page view
+    trackPageView('Cricket Arrange Game');
+    
+    // Track engagement time on page unload
+    const handleBeforeUnload = () => {
+      const engagementTime = Date.now() - engagementStartTime;
+      trackEngagement(engagementTime);
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   useEffect(() => {
@@ -276,11 +284,13 @@ export default function CricketGame() {
         
       } catch (sheetsError) {
         console.warn('Google Sheets fetch failed:', sheetsError);
+        trackError('Google Sheets fetch failed', 'data_fetch_error');
         throw sheetsError; // Re-throw to trigger fallback
       }
       
     } catch (err) {
       console.warn('Using fallback data due to error:', err);
+      trackError('Using fallback data', 'fallback_data_used');
       setError('Using demo data - Google Sheets unavailable');
       
       // Fallback data
@@ -328,17 +338,18 @@ export default function CricketGame() {
   const handlePlayerClick = (player: Player) => {
     if (gameComplete || showResults) return;
     
+    // Track player selection
+    trackPlayerSelect(player.name, player.id);
+    
     if (selectedPlayer?.id === player.id) {
       setSelectedPlayer(null);
       setShowTooltip(false);
-      trackPlayerSelect(player.name, player.id);
     } else {
       setSelectedPlayer(player);
       // Show tooltip only on first selection when no players are placed
       if (arrangedPlayers.every(slot => slot === null)) {
         setShowTooltip(true);
       }
-      trackPlayerSelect(player.name, player.id);
     }
   };
 
@@ -396,153 +407,6 @@ export default function CricketGame() {
     setPositionColors(newArrangedPlayers.map((p, idx) => 
       positionColors[idx] === 'green' && p ? 'green' : ''
     ));
-  };
-
-  const handleMobileDrop = (positionIndex: number) => {
-    if (!dragState.draggedPlayer || gameComplete || showResults || !gameData) return;
-
-    // Track slot selection
-    trackSlotSelect(positionIndex, dragState.draggedPlayer.name);
-
-    // Add animation
-    setAnimatingPlayer(dragState.draggedPlayer.id);
-    
-    setTimeout(() => {
-      const newArrangedPlayers = [...arrangedPlayers];
-      
-      // Remove player from any existing position
-      const existingIndex = newArrangedPlayers.findIndex(p => p?.id === dragState.draggedPlayer!.id);
-      if (existingIndex !== -1) {
-        newArrangedPlayers[existingIndex] = null;
-      }
-
-      // Place player in new position
-      newArrangedPlayers[positionIndex] = dragState.draggedPlayer!;
-      
-      // Remove player from available players
-      const newAvailablePlayers = availablePlayers.filter(p => p.id !== dragState.draggedPlayer!.id);
-      
-      // If there was a player in this position, add them back to available players
-      if (arrangedPlayers[positionIndex]) {
-        newAvailablePlayers.push(arrangedPlayers[positionIndex]!);
-      }
-      
-      setArrangedPlayers(newArrangedPlayers);
-      setAvailablePlayers(newAvailablePlayers);
-      setDragState(prev => ({ ...prev, draggedPlayer: null }));
-      setDragOverPosition(null);
-      setAnimatingPlayer(null);
-    }, 300);
-  };
-
-  const handleDragEnd = () => {
-    if (isMobile()) return;
-    setDragState(prev => ({ ...prev, draggedPlayer: null }));
-    setDragOverPosition(null);
-  };
-
-  // Touch handlers for mobile drag and drop
-  const handleTouchStart = (e: React.TouchEvent, player: Player) => {
-    if (gameComplete || showResults) return;
-    
-    // Prevent default to avoid conflicts
-    e.preventDefault();
-    
-    const touch = e.touches[0];
-    setDragState({
-      isDragging: false,
-      draggedPlayer: player,
-      startTime: Date.now(),
-      startPos: { x: touch.clientX, y: touch.clientY }
-    });
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    // Prevent scrolling and other default behaviors
-    e.preventDefault();
-    e.stopPropagation();
-    
-    if (!dragState.draggedPlayer || !dragState.startPos) return;
-    
-    const touch = e.touches[0];
-    const deltaX = Math.abs(touch.clientX - dragState.startPos.x);
-    const deltaY = Math.abs(touch.clientY - dragState.startPos.y);
-    const timeDiff = Date.now() - dragState.startTime;
-    
-    // Start dragging if moved enough or held long enough
-    if ((deltaX > 10 || deltaY > 10 || timeDiff > 150) && !dragState.isDragging) {
-      setDragState(prev => ({ ...prev, isDragging: true }));
-    }
-    
-    if (!dragState.isDragging) return;
-    
-    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-    
-    // Find if we're over a position slot
-    const positionSlot = elementBelow?.closest('[data-position-index]');
-    if (positionSlot) {
-      const positionIndex = parseInt(positionSlot.getAttribute('data-position-index') || '-1');
-      if (positionIndex >= 0) {
-        setDragOverPosition(positionIndex);
-      }
-    } else {
-      setDragOverPosition(null);
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!dragState.draggedPlayer) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const timeDiff = Date.now() - dragState.startTime;
-    
-    // If it was a quick tap (not a drag), use regular selection
-    if (!dragState.isDragging && timeDiff < 200) {
-      handlePlayerClick(dragState.draggedPlayer);
-      setDragState({
-        isDragging: false,
-        draggedPlayer: null,
-        startTime: 0,
-        startPos: null
-      });
-      return;
-    }
-    
-    // Handle drop for drag operation
-    if (dragState.isDragging) {
-      const touch = e.changedTouches[0];
-      const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-      const positionSlot = elementBelow?.closest('[data-position-index]');
-      
-      if (positionSlot) {
-        const positionIndex = parseInt(positionSlot.getAttribute('data-position-index') || '-1');
-        if (positionIndex >= 0) {
-          handleMobileDrop(positionIndex);
-        }
-      }
-    }
-    
-    // Reset drag state
-    setDragState({
-      isDragging: false,
-      draggedPlayer: null,
-      startTime: 0,
-      startPos: null
-    });
-    setDragOverPosition(null);
-  };
-
-  // Handle touch cancel (when user lifts finger outside)
-  const handleTouchCancel = () => {
-    setDragState({
-      isDragging: false,
-      draggedPlayer: null,
-      startTime: 0,
-      startPos: null
-    });
-    setDragOverPosition(null);
   };
 
   const handleSubmit = () => {
@@ -955,10 +819,6 @@ export default function CricketGame() {
                 <div
                   key={player.id}
                   onClick={() => handlePlayerClick(player)}
-                  onTouchStart={(e) => handleTouchStart(e, player)}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                  onTouchCancel={handleTouchCancel}
                   className={`
                     p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-200 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center
                     ${selectedPlayer?.id === player.id
@@ -966,15 +826,7 @@ export default function CricketGame() {
                       : 'border-gray-600 hover:border-gray-500 hover:bg-gray-700/50'
                     }
                     ${animatingPlayer === player.id ? 'animate-pulse' : ''}
-                    ${dragState.isDragging && dragState.draggedPlayer?.id === player.id ? 'opacity-50 scale-105 z-50' : ''}
                   `}
-                  style={{
-                    touchAction: 'none',
-                    userSelect: 'none',
-                    WebkitUserSelect: 'none',
-                    WebkitTouchCallout: 'none',
-                    WebkitUserDrag: 'none'
-                  }}
                 >
                   <img
                     src={player.image}
@@ -1019,16 +871,9 @@ export default function CricketGame() {
                   data-position-index={index}
                   className={`
                     p-1 sm:p-1.5 rounded-lg border-2 transition-all duration-200 cursor-pointer min-h-[45px] sm:min-h-[50px] text-center relative
-                    ${dragOverPosition === index 
-                      ? 'border-blue-400 bg-blue-900/40 transform scale-105 shadow-xl ring-2 ring-blue-400/50' 
-                      : getPositionBorderColor(index)
-                    }
+                    ${getPositionBorderColor(index)}
                     ${!isMobile() ? 'hover:border-blue-400 hover:bg-blue-900/20' : ''}
-                    ${dragState.isDragging && !player ? 'border-blue-400 bg-blue-900/30 scale-105' : ''}
                   `}
-                  style={{
-                    touchAction: 'manipulation'
-                  }}
                 >
                   <div className={`absolute top-1 left-1 text-xs font-bold ${
                     positionColors[index] === 'green' 
