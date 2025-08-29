@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trophy, RotateCcw, Calendar, Share2, ExternalLink, Info, AlertCircle, Send, Flag, X, Gamepad2 } from 'lucide-react';
+import { shouldShowAds } from '../utils/premium';
 import { 
   trackGameBegin, 
   trackGameComplete, 
@@ -1004,23 +1005,25 @@ export default function CricketGame() {
       {/* Desktop Layout with Ads */}
       <div className="hidden lg:flex lg:justify-center lg:gap-8 lg:px-4">
         {/* Left Ad */}
-        <div className="lg:w-[300px] lg:flex-shrink-0">
-          <div className="sticky top-4">
-            <div 
-              id="div-gpt-ad-1754030483680-0" 
-              style={{ minWidth: '300px', minHeight: '250px' }}
-              dangerouslySetInnerHTML={{
-                __html: `<script>
-                  if (window.googletag) {
-                    googletag.cmd.push(function() { 
-                      googletag.display('div-gpt-ad-1754030483680-0'); 
-                    });
-                  }
-                </script>`
-              }}
-            />
+        {shouldShowAds() && (
+          <div className="lg:w-[300px] lg:flex-shrink-0">
+            <div className="sticky top-4">
+              <div 
+                id="div-gpt-ad-1754030483680-0" 
+                style={{ minWidth: '300px', minHeight: '250px' }}
+                dangerouslySetInnerHTML={{
+                  __html: `<script>
+                    if (window.googletag) {
+                      googletag.cmd.push(function() { 
+                        googletag.display('div-gpt-ad-1754030483680-0'); 
+                      });
+                    }
+                  </script>`
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Main Content for Desktop */}
         <div className="lg:max-w-2xl lg:flex-1">
@@ -1028,23 +1031,25 @@ export default function CricketGame() {
         </div>
 
         {/* Right Ad */}
-        <div className="lg:w-[300px] lg:flex-shrink-0">
-          <div className="sticky top-4">
-            <div 
-              id="div-gpt-ad-1754030700661-0" 
-              style={{ minWidth: '300px', minHeight: '250px' }}
-              dangerouslySetInnerHTML={{
-                __html: `<script>
-                  if (window.googletag) {
-                    googletag.cmd.push(function() { 
-                      googletag.display('div-gpt-ad-1754030700661-0'); 
-                    });
-                  }
-                </script>`
-              }}
-            />
+        {shouldShowAds() && (
+          <div className="lg:w-[300px] lg:flex-shrink-0">
+            <div className="sticky top-4">
+              <div 
+                id="div-gpt-ad-1754030700661-0" 
+                style={{ minWidth: '300px', minHeight: '250px' }}
+                dangerouslySetInnerHTML={{
+                  __html: `<script>
+                    if (window.googletag) {
+                      googletag.cmd.push(function() { 
+                        googletag.display('div-gpt-ad-1754030700661-0'); 
+                      });
+                    }
+                  </script>`
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Mobile Layout (unchanged) */}
@@ -1053,38 +1058,42 @@ export default function CricketGame() {
       </div>
 
       {/* Bottom Sticky Ad for Desktop */}
-      <div className="hidden lg:block fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40">
-        <div 
-          id="div-gpt-ad-1754030936119-0" 
-          style={{ minWidth: '970px', minHeight: '90px' }}
-          dangerouslySetInnerHTML={{
-            __html: `<script>
-              if (window.googletag) {
-                googletag.cmd.push(function() { 
-                  googletag.display('div-gpt-ad-1754030936119-0'); 
-                });
-              }
-            </script>`
-          }}
-        />
-      </div>
-
-      {/* Mobile Sticky Ad */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-800 border-t border-gray-700">
-        <div className="flex justify-center p-2">
-          <div id='div-gpt-ad-1754030829221-0' style={{maxWidth: '336px', maxHeight: '280px'}}>
-            <script dangerouslySetInnerHTML={{
-              __html: `
-                if (typeof googletag !== 'undefined') {
+      {shouldShowAds() && (
+        <div className="hidden lg:block fixed bottom-0 left-1/2 transform -translate-x-1/2 z-40">
+          <div 
+            id="div-gpt-ad-1754030936119-0" 
+            style={{ minWidth: '970px', minHeight: '90px' }}
+            dangerouslySetInnerHTML={{
+              __html: `<script>
+                if (window.googletag) {
                   googletag.cmd.push(function() { 
-                    googletag.display('div-gpt-ad-1754030829221-0'); 
+                    googletag.display('div-gpt-ad-1754030936119-0'); 
                   });
                 }
-              `
-            }} />
+              </script>`
+            }}
+          />
+        </div>
+      )}
+
+      {/* Mobile Sticky Ad */}
+      {shouldShowAds() && (
+        <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-800 border-t border-gray-700">
+          <div className="flex justify-center p-2">
+            <div id='div-gpt-ad-1754030829221-0' style={{maxWidth: '336px', maxHeight: '280px'}}>
+              <script dangerouslySetInnerHTML={{
+                __html: `
+                  if (typeof googletag !== 'undefined') {
+                    googletag.cmd.push(function() { 
+                      googletag.display('div-gpt-ad-1754030829221-0'); 
+                    });
+                  }
+                `
+              }} />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
